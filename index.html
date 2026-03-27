@@ -448,6 +448,7 @@
 
     <div id="backToTop" onclick="scrollToTop()" style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; transition: all 0.3s;"><i class="fas fa-arrow-up"></i></div>
 
+    <script src="js/api.js"></script>
     <script>
         const heroImages = [
             { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920', title: '泰山日出' },
@@ -501,7 +502,8 @@
 
         function checkLogin() {
             const user = localStorage.getItem('currentUser');
-            if (user) {
+            const token = api.getToken();
+            if (user && token) {
                 const userData = JSON.parse(user);
                 document.getElementById('userName').textContent = '欢迎, ' + userData.name;
                 document.getElementById('loginBtn').style.display = 'none';
@@ -511,25 +513,18 @@
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
+            api.logout();
             location.reload();
         }
 
-        function getMountains() {
-            let mountains = localStorage.getItem('mountains');
-            if (!mountains) {
-                const defaultMountains = [
-                    { id: 1, name: '泰山', location: '山东省泰安市', altitude: 1545, difficulty: '中等', description: '五岳之首，气势磅礴，是中华民族精神文化的象征。日出美景令人震撼。', views: 12580, rating: 4.8 },
-                    { id: 2, name: '华山', location: '陕西省渭南市', altitude: 2155, difficulty: '困难', description: '奇险天下第一山，以险峻著称，是道教主流全真派圣地。长空栈道惊险刺激。', views: 9876, rating: 4.9 },
-                    { id: 3, name: '黄山', location: '安徽省黄山市', altitude: 1865, difficulty: '中等', description: '天下第一奇山，以奇松、怪石、云海、温泉四绝闻名于世。', views: 15680, rating: 4.9 },
-                    { id: 4, name: '峨眉山', location: '四川省乐山市', altitude: 3099, difficulty: '困难', description: '佛教名山，秀甲天下，是中国四大佛教名山之一。金顶日出云海壮观。', views: 8543, rating: 4.7 },
-                    { id: 5, name: '武夷山', location: '福建省武夷山市', altitude: 2158, difficulty: '简单', description: '世界文化与自然遗产，以丹霞地貌著称，九曲溪竹筏漂流别有风味。', views: 6789, rating: 4.6 },
-                    { id: 6, name: '张家界', location: '湖南省张家界市', altitude: 1518, difficulty: '中等', description: '奇峰三千，秀水八百，是电影阿凡达取景地，玻璃栈道惊险刺激。', views: 11234, rating: 4.8 }
-                ];
-                localStorage.setItem('mountains', JSON.stringify(defaultMountains));
-                return defaultMountains;
+        async function getMountains() {
+            try {
+                const result = await api.getMountains();
+                return result.data.mountains;
+            } catch (error) {
+                console.error('获取山峰失败:', error);
+                return [];
             }
-            return JSON.parse(mountains);
         }
 
         function renderMountains(mountains) {
@@ -557,17 +552,18 @@
             `}).join('');
         }
 
-        function searchMountains() {
+        async function searchMountains() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const mountains = getMountains();
-            const filtered = mountains.filter(m => 
-                m.name.toLowerCase().includes(keyword) || 
-                m.location.toLowerCase().includes(keyword)
-            );
-            if (filtered.length > 0) {
-                renderMountains(filtered);
-            } else {
-                alert('未找到匹配的山峰，请尝试其他关键词');
+            try {
+                const result = await api.getMountains({ keyword });
+                const filtered = result.data.mountains;
+                if (filtered.length > 0) {
+                    renderMountains(filtered);
+                } else {
+                    alert('未找到匹配的山峰，请尝试其他关键词');
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
             }
         }
 
@@ -596,7 +592,11 @@
 
         initHeroSlider();
         checkLogin();
-        renderMountains(getMountains());
+        
+        (async function init() {
+            const mountains = await getMountains();
+            renderMountains(mountains);
+        })();
 
         window.addEventListener('load', function() {
             setTimeout(function() {

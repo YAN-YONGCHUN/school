@@ -358,6 +358,7 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -385,7 +386,7 @@
             }
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             
             const account = document.getElementById('loginAccount').value.trim();
@@ -396,25 +397,20 @@
                 return;
             }
             
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => (u.phone === account || u.email === account) && u.password === password);
-            
-            if (user) {
-                if (user.status === 'inactive') {
-                    showToast('账户已被禁用，请联系管理员', 'error');
-                    return;
+            try {
+                const result = await api.login(account, password);
+                if (result.success) {
+                    showToast('登录成功！', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
                 }
-                localStorage.setItem('currentUser', JSON.stringify({ name: user.name, phone: user.phone }));
-                showToast('登录成功！', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
-            } else {
-                showToast('账号或密码错误，请重试', 'error');
+            } catch (error) {
+                showToast(error.message || '登录失败，请重试', 'error');
             }
         }
 
-        function handleRegister(e) {
+        async function handleRegister(e) {
             e.preventDefault();
             
             const name = document.getElementById('regName').value.trim();
@@ -442,30 +438,17 @@
                 return;
             }
             
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            
-            if (users.find(u => u.phone === phone)) {
-                showToast('该手机号已注册', 'error');
-                return;
+            try {
+                const result = await api.register(name, phone, password);
+                if (result.success) {
+                    showToast('注册成功！', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                showToast(error.message || '注册失败，请重试', 'error');
             }
-            
-            const newUser = { 
-                name, 
-                phone, 
-                password, 
-                email: phone + '@example.com',
-                status: 'active',
-                registerTime: new Date().toLocaleDateString(),
-                climbCount: 0
-            };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            localStorage.setItem('currentUser', JSON.stringify({ name, phone }));
-            showToast('注册成功！', 'success');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
         }
 
         function socialLogin(platform) {
@@ -474,14 +457,6 @@
 
         function forgotPassword() {
             showToast('密码找回功能开发中，请联系客服', 'warning');
-        }
-
-        const demoUsers = [
-            { name: '登山爱好者', phone: '13800138000', password: '123456', email: 'demo@example.com', status: 'active', registerTime: '2024-01-01', climbCount: 10 }
-        ];
-        
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify(demoUsers));
         }
 
         document.getElementById('loginAccount').addEventListener('keypress', function(e) {
