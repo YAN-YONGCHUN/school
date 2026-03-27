@@ -1,10 +1,13 @@
 {
   "name": "memsavor-api",
   "version": "1.0.0",
-  "description": "MemSavor登山共享平台API",
+  "description": "MemSavor 登山共享平台 API",
   "scripts": {
     "dev": "vercel dev",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "netlify:dev": "netlify dev",
+    "netlify:build": "netlify build",
+    "netlify:deploy": "netlify deploy --prod"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
@@ -12,6 +15,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "vercel": "^32.0.0"
+    "vercel": "^32.0.0",
+    "netlify-cli": "^17.0.0"
   }
 }
