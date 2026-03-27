@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>集章商城 - 山伴</title>
+    <title>集章商城 - PorSavor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -338,7 +338,7 @@
     <nav class="navbar">
         <a href="index.html" class="logo">
             <span>⛰️</span>
-            <span>山伴</span>
+            <span>MemSavor</span>
         </a>
         <div class="nav-menu">
             <a href="index.html">首页</a>
@@ -348,8 +348,10 @@
             <a href="spots.html">山峰列表</a>
         </div>
         <div class="nav-actions">
-            <button class="btn btn-outline" onclick="location.href='login.html'">登录</button>
-            <button class="btn btn-primary" onclick="location.href='login.html'">注册</button>
+            <span id="userName" style="color: var(--primary); font-weight: 500;"></span>
+            <button class="btn btn-outline" id="loginBtn" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" id="registerBtn" onclick="location.href='login.html'">注册</button>
+            <button class="btn btn-accent" id="logoutBtn" onclick="logout()" style="display:none;">退出</button>
         </div>
     </nav>
 
@@ -646,6 +648,23 @@
             }
         }
 
+        function checkLogin() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('userName').textContent = '欢迎, ' + userData.name;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('registerBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        checkLogin();
         renderBadges();
         renderProducts();
     </script>

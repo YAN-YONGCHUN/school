@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 山伴</title>
+    <title>登录 - PorSavor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -214,6 +214,25 @@
         }
         .feature-text { font-size: 14px; opacity: 0.9; }
 
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--primary); }
+        .toast.error { background: #f44336; }
+        .toast.warning { background: #ff9800; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         @media (max-width: 900px) {
             .login-banner { display: none; }
             .login-form-section { width: 100%; }
@@ -229,7 +248,7 @@
         <div class="login-banner">
             <div class="banner-content">
                 <div class="banner-logo">⛰️</div>
-                <h1 class="banner-title">山伴</h1>
+                <h1 class="banner-title">MemSavor</h1>
                 <p class="banner-desc">探索山峰 征服自我<br>与志同道合的伙伴一起<br>开启您的登山之旅</p>
                 <div class="features-list">
                     <div class="feature-item">
@@ -256,7 +275,7 @@
             <div class="login-form-wrapper">
                 <a href="index.html" class="form-logo">
                     <span>⛰️</span>
-                    <span>山伴</span>
+                    <span>MemSavor</span>
                 </a>
                 <h2 class="form-title">欢迎回来</h2>
                 <p class="form-subtitle">登录您的账户，继续探索之旅</p>
@@ -286,7 +305,7 @@
                             <input type="checkbox" id="rememberMe">
                             <span>记住我</span>
                         </label>
-                        <a href="#" class="forgot-link">忘记密码？</a>
+                        <a href="#" class="forgot-link" onclick="forgotPassword()">忘记密码？</a>
                     </div>
                     <button type="submit" class="btn btn-primary">登 录</button>
                 </form>
@@ -303,7 +322,7 @@
                         <label>手机号</label>
                         <div class="input-wrapper">
                             <i class="fas fa-phone"></i>
-                            <input type="tel" class="form-input" id="regPhone" placeholder="请输入手机号" required>
+                            <input type="tel" class="form-input" id="regPhone" placeholder="请输入手机号" required pattern="[0-9]{11}">
                         </div>
                     </div>
                     <div class="form-group">
@@ -340,6 +359,14 @@
     </div>
 
     <script>
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
         function switchTab(tab) {
             const tabs = document.querySelectorAll('.form-tab');
             const loginForm = document.getElementById('loginForm');
@@ -361,11 +388,11 @@
         function handleLogin(e) {
             e.preventDefault();
             
-            const account = document.getElementById('loginAccount').value;
+            const account = document.getElementById('loginAccount').value.trim();
             const password = document.getElementById('loginPassword').value;
             
             if (!account || !password) {
-                alert('请填写完整信息');
+                showToast('请填写完整信息', 'error');
                 return;
             }
             
@@ -373,63 +400,95 @@
             const user = users.find(u => (u.phone === account || u.email === account) && u.password === password);
             
             if (user) {
+                if (user.status === 'inactive') {
+                    showToast('账户已被禁用，请联系管理员', 'error');
+                    return;
+                }
                 localStorage.setItem('currentUser', JSON.stringify({ name: user.name, phone: user.phone }));
-                alert('登录成功！');
-                window.location.href = 'index.html';
+                showToast('登录成功！', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
             } else {
-                alert('账号或密码错误，请重试');
+                showToast('账号或密码错误，请重试', 'error');
             }
         }
 
         function handleRegister(e) {
             e.preventDefault();
             
-            const name = document.getElementById('regName').value;
-            const phone = document.getElementById('regPhone').value;
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
             
             if (!name || !phone || !password) {
-                alert('请填写完整信息');
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+            
+            if (!/^1[3-9]\d{9}$/.test(phone)) {
+                showToast('请输入正确的手机号', 'error');
                 return;
             }
             
             if (password !== confirmPassword) {
-                alert('两次密码输入不一致');
+                showToast('两次密码输入不一致', 'error');
                 return;
             }
             
             if (password.length < 6) {
-                alert('密码至少需要6位');
+                showToast('密码至少需要6位', 'error');
                 return;
             }
             
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
             if (users.find(u => u.phone === phone)) {
-                alert('该手机号已注册');
+                showToast('该手机号已注册', 'error');
                 return;
             }
             
-            users.push({ name, phone, password, email: phone + '@example.com' });
+            const newUser = { 
+                name, 
+                phone, 
+                password, 
+                email: phone + '@example.com',
+                status: 'active',
+                registerTime: new Date().toLocaleDateString(),
+                climbCount: 0
+            };
+            users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
             
             localStorage.setItem('currentUser', JSON.stringify({ name, phone }));
-            alert('注册成功！');
-            window.location.href = 'index.html';
+            showToast('注册成功！', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         }
 
         function socialLogin(platform) {
-            alert(`${platform === 'wechat' ? '微信' : '支付宝'}登录功能开发中...\n\n演示账号：\n手机号：13800138000\n密码：123456`);
+            showToast(`${platform === 'wechat' ? '微信' : '支付宝'}登录功能开发中...`, 'warning');
+        }
+
+        function forgotPassword() {
+            showToast('密码找回功能开发中，请联系客服', 'warning');
         }
 
         const demoUsers = [
-            { name: '登山爱好者', phone: '13800138000', password: '123456', email: 'demo@example.com' }
+            { name: '登山爱好者', phone: '13800138000', password: '123456', email: 'demo@example.com', status: 'active', registerTime: '2024-01-01', climbCount: 10 }
         ];
         
         if (!localStorage.getItem('users')) {
             localStorage.setItem('users', JSON.stringify(demoUsers));
         }
+
+        document.getElementById('loginAccount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
