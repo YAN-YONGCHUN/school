@@ -6,18 +6,18 @@ module.exports = async (req, res) => {
     if (handleOptions(req, res)) return;
 
     const { method } = req;
-    const path = req.url.split('?')[0];
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const searchParams = url.searchParams;
+    const url = req.url;
+    const pathname = url.split('?')[0];
 
     try {
-        if (method === 'GET' && path === '/api/mountains') {
+        if (method === 'GET' && pathname.includes('/mountains')) {
             let mountains = getData('mountains');
             
-            const keyword = searchParams.get('keyword');
-            const difficulty = searchParams.get('difficulty');
-            const page = parseInt(searchParams.get('page')) || 1;
-            const limit = parseInt(searchParams.get('limit')) || 10;
+            const urlObj = new URL(url, 'http://localhost');
+            const keyword = urlObj.searchParams.get('keyword');
+            const difficulty = urlObj.searchParams.get('difficulty');
+            const page = parseInt(urlObj.searchParams.get('page')) || 1;
+            const limit = parseInt(urlObj.searchParams.get('limit')) || 10;
 
             if (keyword) {
                 mountains = mountains.filter(m => 
@@ -44,8 +44,8 @@ module.exports = async (req, res) => {
             });
         }
 
-        if (method === 'GET' && path.match(/^\/api\/mountains\/\d+$/)) {
-            const id = path.split('/').pop();
+        if (method === 'GET' && pathname.match(/\/mountains\/\d+$/)) {
+            const id = pathname.split('/').pop();
             const mountain = findItem('mountains', 'id', parseInt(id));
             
             if (!mountain) {
@@ -58,7 +58,7 @@ module.exports = async (req, res) => {
             return sendSuccess(res, { mountain });
         }
 
-        if (method === 'POST' && path === '/api/mountains') {
+        if (method === 'POST' && pathname.includes('/mountains')) {
             const auth = authMiddleware(req);
             if (!auth.valid || !auth.user.isAdmin) {
                 return sendError(res, '无权限操作', 403);
@@ -87,13 +87,13 @@ module.exports = async (req, res) => {
             return sendSuccess(res, { mountain: newMountain }, '添加成功');
         }
 
-        if (method === 'PUT' && path.match(/^\/api\/mountains\/\d+$/)) {
+        if (method === 'PUT' && pathname.match(/\/mountains\/\d+$/)) {
             const auth = authMiddleware(req);
             if (!auth.valid || !auth.user.isAdmin) {
                 return sendError(res, '无权限操作', 403);
             }
 
-            const id = path.split('/').pop();
+            const id = pathname.split('/').pop();
             const body = await parseBody(req);
             
             const updated = updateItem('mountains', parseInt(id), body);
@@ -105,13 +105,13 @@ module.exports = async (req, res) => {
             return sendSuccess(res, { mountain: updated }, '更新成功');
         }
 
-        if (method === 'DELETE' && path.match(/^\/api\/mountains\/\d+$/)) {
+        if (method === 'DELETE' && pathname.match(/\/mountains\/\d+$/)) {
             const auth = authMiddleware(req);
             if (!auth.valid || !auth.user.isAdmin) {
                 return sendError(res, '无权限操作', 403);
             }
 
-            const id = path.split('/').pop();
+            const id = pathname.split('/').pop();
             const deleted = deleteItem('mountains', parseInt(id));
             
             if (!deleted) {

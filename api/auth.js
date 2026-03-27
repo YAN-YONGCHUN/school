@@ -3,14 +3,18 @@ const { getData, findItem, addItem } = require('../lib/db');
 const { generateToken } = require('../lib/auth');
 
 module.exports = async (req, res) => {
-    if (handleOptions(req, res)) return;
+    setCorsHeaders(res);
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
     const { method } = req;
-    const path = req.url.split('?')[0];
-    const parts = path.split('/').filter(Boolean);
+    const url = req.url;
+    const pathname = url.split('?')[0];
 
     try {
-        if (method === 'POST' && path === '/api/auth/register') {
+        if (method === 'POST' && pathname.includes('/auth/register')) {
             const body = await parseBody(req);
             const { name, phone, password, email } = body;
 
@@ -45,7 +49,7 @@ module.exports = async (req, res) => {
             }, '注册成功');
         }
 
-        if (method === 'POST' && path === '/api/auth/login') {
+        if (method === 'POST' && pathname.includes('/auth/login')) {
             const body = await parseBody(req);
             const { account, password } = body;
 
@@ -71,7 +75,7 @@ module.exports = async (req, res) => {
             }, '登录成功');
         }
 
-        if (method === 'POST' && path === '/api/auth/admin/login') {
+        if (method === 'POST' && pathname.includes('/auth/admin/login')) {
             const body = await parseBody(req);
             const { account, password } = body;
 
@@ -99,7 +103,7 @@ module.exports = async (req, res) => {
             }, '登录成功');
         }
 
-        if (method === 'GET' && path === '/api/auth/me') {
+        if (method === 'GET' && pathname.includes('/auth/me')) {
             const { authMiddleware } = require('../lib/auth');
             const auth = authMiddleware(req);
             
