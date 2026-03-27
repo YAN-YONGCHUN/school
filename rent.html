@@ -482,6 +482,7 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         const defaultOrders = [
             { id: 1, mountain: '泰山景区', code: '#001', time: '2024-03-20 08:30', duration: '3小时', status: 'active', cost: 15 },
@@ -606,7 +607,8 @@
 
         function checkLogin() {
             const user = localStorage.getItem('currentUser');
-            if (user) {
+            const token = api.getToken();
+            if (user && token) {
                 const userData = JSON.parse(user);
                 document.getElementById('userName').textContent = '欢迎, ' + userData.name;
                 document.getElementById('loginBtn').style.display = 'none';
@@ -616,7 +618,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
+            api.logout();
             location.reload();
         }
 

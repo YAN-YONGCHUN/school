@@ -354,6 +354,7 @@
         <div class="pagination" id="pagination"></div>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         const mountainImages = {
             '泰山': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
@@ -558,7 +559,8 @@
 
         function checkLogin() {
             const user = localStorage.getItem('currentUser');
-            if (user) {
+            const token = api.getToken();
+            if (user && token) {
                 const userData = JSON.parse(user);
                 document.getElementById('userName').textContent = '欢迎, ' + userData.name;
                 document.getElementById('loginBtn').style.display = 'none';
@@ -567,7 +569,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
+            api.logout();
             location.reload();
         }
 
