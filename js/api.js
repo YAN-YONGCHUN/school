@@ -206,10 +206,37 @@ const api = {
         return request(`/api/partners${query ? '?' + query : ''}`);
     },
 
+    async getMyPartners() {
+        return request('/api/partners/my');
+    },
+
+    async getPartnerApplications() {
+        return request('/api/partners/applications');
+    },
+
     async createPartner(data) {
         return request('/api/partners', {
             method: 'POST',
             body: data
+        });
+    },
+
+    async applyPartner(partnerId, message) {
+        return request('/api/partners/apply', {
+            method: 'POST',
+            body: { partnerId, message }
+        });
+    },
+
+    async approveApplication(appId) {
+        return request(`/api/partners/applications/${appId}/approve`, {
+            method: 'POST'
+        });
+    },
+
+    async rejectApplication(appId) {
+        return request(`/api/partners/applications/${appId}/reject`, {
+            method: 'POST'
         });
     },
 

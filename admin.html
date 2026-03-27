@@ -1006,6 +1006,7 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         let currentSection = 'dashboard';
         let confirmCallback = null;
@@ -1943,7 +1944,8 @@
 
         function checkAdminLogin() {
             const admin = localStorage.getItem('adminUser');
-            if (!admin) {
+            const token = api.getToken();
+            if (!admin || !token) {
                 window.location.href = 'admin-login.html';
                 return false;
             }
@@ -1954,7 +1956,7 @@
         }
 
         function adminLogout() {
-            localStorage.removeItem('adminUser');
+            api.logout();
             window.location.href = 'admin-login.html';
         }
 

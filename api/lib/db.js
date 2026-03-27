@@ -4,6 +4,7 @@ let dataStore = {
     orders: [],
     rentals: [],
     partners: [],
+    partnerApplications: [],
     products: [],
     adminUsers: []
 };
