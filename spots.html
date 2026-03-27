@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山峰列表 - 山伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+        
+        .navbar {
+            background: var(--white);
+            padding: 0 60px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 50px; }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            padding: 60px 20px;
+            margin: -20px -20px 40px;
+            color: white;
+            text-align: center;
+        }
+        .page-title { font-size: 36px; font-weight: 700; margin-bottom: 10px; }
+        .page-desc { opacity: 0.9; }
+
+        .filter-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-group { display: flex; align-items: center; gap: 10px; }
+        .filter-label { font-weight: 500; font-size: 14px; color: var(--text-gray); white-space: nowrap; }
+        .filter-input {
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 14px;
+            min-width: 200px;
+            transition: all 0.3s;
+        }
+        .filter-input:focus { outline: none; border-color: var(--primary); }
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            background: var(--white);
+            min-width: 120px;
+        }
+        .filter-select:focus { outline: none; border-color: var(--primary); }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .view-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--white);
+        }
+        .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .results-count { color: var(--text-gray); }
+        .sort-select {
+            padding: 8px 15px;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .mountain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .mountain-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+        .mountain-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .mountain-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+        .card-img {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .card-img::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.4));
+        }
+        .card-badges {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 8px;
+        }
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-hot { background: var(--accent); color: white; }
+        .badge-new { background: #2196F3; color: white; }
+        .card-rating {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card-rating i { color: #FFD54F; }
+        .card-content { padding: 20px; }
+        .card-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .card-location { color: var(--text-gray); font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
+        .card-desc { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .card-stats { display: flex; gap: 20px; color: var(--text-gray); font-size: 13px; }
+        .card-stats span { display: flex; align-items: center; gap: 5px; }
+        .difficulty {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .diff-easy { background: #e8f5e9; color: var(--primary); }
+        .diff-medium { background: #fff3e0; color: #e65100; }
+        .diff-hard { background: #ffebee; color: #c62828; }
+
+        .list-view .mountain-card {
+            display: flex;
+            flex-direction: row;
+        }
+        .list-view .card-img {
+            width: 280px;
+            min-width: 280px;
+            height: 200px;
+        }
+        .list-view .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .list-view .card-desc {
+            -webkit-line-clamp: 3;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--white);
+            font-weight: 500;
+        }
+        .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .nav-menu { display: none; }
+            .filter-row { flex-direction: column; align-items: stretch; }
+            .filter-group { width: 100%; }
+            .filter-input { min-width: 100%; }
+            .mountain-grid { grid-template-columns: 1fr; }
+            .list-view .mountain-card { flex-direction: column; }
+            .list-view .card-img { width: 100%; min-width: 100%; height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <span>⛰️</span>
+            <span>山伴</span>
+        </a>
+        <div class="nav-menu">
+            <a href="index.html">首页</a>
+            <a href="rent.html">共享登山杖</a>
+            <a href="partner.html">登山搭子</a>
+            <a href="badge.html">集章商城</a>
+            <a href="spots.html" class="active">山峰列表</a>
+        </div>
+        <div class="user-info">
+            <span id="userName" style="color: var(--primary); font-weight: 500;"></span>
+            <button class="btn btn-outline" id="loginBtn" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" id="logoutBtn" onclick="logout()" style="display:none;">退出</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🏔️ 山峰列表</h1>
+            <p class="page-desc">探索中国最美的山峰，开启您的登山之旅</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label"><i class="fas fa-search"></i></span>
+                    <input type="text" class="filter-input" id="searchInput" placeholder="搜索山峰名称或地区..." onkeyup="filterMountains()">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">难度：</span>
+                    <select class="filter-select" id="difficultyFilter" onchange="filterMountains()">
+                        <option value="">全部</option>
+                        <option value="简单">简单</option>
+                        <option value="中等">中等</option>
+                        <option value="困难">困难</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">海拔：</span>
+                    <select class="filter-select" id="altitudeFilter" onchange="filterMountains()">
+                        <option value="">全部</option>
+                        <option value="1000">1000m以下</option>
+                        <option value="2000">1000-2000m</option>
+                        <option value="3000">2000-3000m</option>
+                        <option value="9999">3000m以上</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">地区：</span>
+                    <select class="filter-select" id="regionFilter" onchange="filterMountains()">
+                        <option value="">全部</option>
+                        <option value="山东">山东</option>
+                        <option value="陕西">陕西</option>
+                        <option value="安徽">安徽</option>
+                        <option value="四川">四川</option>
+                        <option value="福建">福建</option>
+                        <option value="湖南">湖南</option>
+                    </select>
+                </div>
+                <div class="view-toggle">
+                    <div class="view-btn active" id="gridViewBtn" onclick="setView('grid')"><i class="fas fa-th-large"></i></div>
+                    <div class="view-btn" id="listViewBtn" onclick="setView('list')"><i class="fas fa-list"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-info">
+            <span class="results-count" id="resultsCount">共 0 座山峰</span>
+            <select class="sort-select" id="sortSelect" onchange="sortMountains()">
+                <option value="views">按热度排序</option>
+                <option value="altitude">按海拔排序</option>
+                <option value="rating">按评分排序</option>
+                <option value="name">按名称排序</option>
+            </select>
+        </div>
+
+        <div class="mountain-grid" id="mountainGrid"></div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        const mountainImages = {
+            '泰山': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
+            '华山': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800',
+            '黄山': 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800',
+            '峨眉山': 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800',
+            '武夷山': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+            '张家界': 'https://images.unsplash.com/photo-1518173946687-a4c036bc3c5a?w=800'
+        };
+
+        let currentView = 'grid';
+        let currentPage = 1;
+        const pageSize = 6;
+
+        function getMountains() {
+            let mountains = localStorage.getItem('mountains');
+            if (!mountains) {
+                mountains = [
+                    { id: 1, name: '泰山', location: '山东省泰安市', altitude: 1545, difficulty: '中等', description: '五岳之首，气势磅礴，是中华民族精神文化的象征。日出美景令人震撼，十八盘险峻壮观。', views: 12580, rating: 4.8, isNew: false },
+                    { id: 2, name: '华山', location: '陕西省渭南市', altitude: 2155, difficulty: '困难', description: '奇险天下第一山，以险峻著称，是道教主流全真派圣地。长空栈道惊险刺激，东峰日出壮观。', views: 9876, rating: 4.9, isNew: false },
+                    { id: 3, name: '黄山', location: '安徽省黄山市', altitude: 1865, difficulty: '中等', description: '天下第一奇山，以奇松、怪石、云海、温泉四绝闻名于世。迎客松是黄山的标志性景观。', views: 15680, rating: 4.9, isNew: false },
+                    { id: 4, name: '峨眉山', location: '四川省乐山市', altitude: 3099, difficulty: '困难', description: '佛教名山，秀甲天下，是中国四大佛教名山之一。金顶日出云海壮观，猴子可爱。', views: 8543, rating: 4.7, isNew: true },
+                    { id: 5, name: '武夷山', location: '福建省武夷山市', altitude: 2158, difficulty: '简单', description: '世界文化与自然遗产，以丹霞地貌著称，九曲溪竹筏漂流别有风味。大红袍茶闻名天下。', views: 6789, rating: 4.6, isNew: false },
+                    { id: 6, name: '张家界', location: '湖南省张家界市', altitude: 1518, difficulty: '中等', description: '奇峰三千，秀水八百，是电影阿凡达取景地，玻璃栈道惊险刺激。天门山洞气势磅礴。', views: 11234, rating: 4.8, isNew: true },
+                    { id: 7, name: '庐山', location: '江西省九江市', altitude: 1474, difficulty: '中等', description: '不识庐山真面目，只缘身在此山中。以雄、奇、险、秀闻名，是世界文化遗产。', views: 7890, rating: 4.5, isNew: false },
+                    { id: 8, name: '衡山', location: '湖南省衡阳市', altitude: 1300, difficulty: '简单', description: '南岳衡山，五岳之一，以秀著称。祝融峰是最高峰，香火鼎盛。', views: 5678, rating: 4.4, isNew: false },
+                    { id: 9, name: '嵩山', location: '河南省登封市', altitude: 1491, difficulty: '中等', description: '中岳嵩山，五岳之一，少林寺所在地。嵩阳书院是中国古代四大书院之一。', views: 6543, rating: 4.5, isNew: false },
+                    { id: 10, name: '玉龙雪山', location: '云南省丽江市', altitude: 5596, difficulty: '困难', description: '纳西族神山，终年积雪。冰川公园壮观，蓝月谷如仙境。', views: 15678, rating: 4.9, isNew: true },
+                    { id: 11, name: '四姑娘山', location: '四川省阿坝州', altitude: 6250, difficulty: '困难', description: '东方阿尔卑斯，四座雪峰如四位姑娘。双桥沟、长坪沟、海子沟各具特色。', views: 8765, rating: 4.8, isNew: true },
+                    { id: 12, name: '三清山', location: '江西省上饶市', altitude: 1819, difficulty: '中等', description: '道教名山，世界自然遗产。巨蟒出山、东方女神等奇石令人叹为观止。', views: 7654, rating: 4.7, isNew: false }
+                ];
+                localStorage.setItem('mountains', JSON.stringify(mountains));
+            } else {
+                mountains = JSON.parse(mountains);
+            }
+            return mountains;
+        }
+
+        function filterMountains() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const difficulty = document.getElementById('difficultyFilter').value;
+            const altitude = document.getElementById('altitudeFilter').value;
+            const region = document.getElementById('regionFilter').value;
+            
+            let mountains = getMountains();
+            
+            if (keyword) {
+                mountains = mountains.filter(m => 
+                    m.name.toLowerCase().includes(keyword) || 
+                    m.location.toLowerCase().includes(keyword)
+                );
+            }
+            if (difficulty) {
+                mountains = mountains.filter(m => m.difficulty === difficulty);
+            }
+            if (altitude) {
+                const alt = parseInt(altitude);
+                if (alt === 1000) {
+                    mountains = mountains.filter(m => m.altitude < 1000);
+                } else if (alt === 2000) {
+                    mountains = mountains.filter(m => m.altitude >= 1000 && m.altitude < 2000);
+                } else if (alt === 3000) {
+                    mountains = mountains.filter(m => m.altitude >= 2000 && m.altitude < 3000);
+                } else {
+                    mountains = mountains.filter(m => m.altitude >= 3000);
+                }
+            }
+            if (region) {
+                mountains = mountains.filter(m => m.location.includes(region));
+            }
+            
+            renderMountains(mountains);
+        }
+
+        function sortMountains() {
+            const sortBy = document.getElementById('sortSelect').value;
+            let mountains = getFilteredMountains();
+            
+            mountains.sort((a, b) => {
+                if (sortBy === 'views') return b.views - a.views;
+                if (sortBy === 'altitude') return b.altitude - a.altitude;
+                if (sortBy === 'rating') return b.rating - a.rating;
+                if (sortBy === 'name') return a.name.localeCompare(b.name);
+                return 0;
+            });
+            
+            renderMountains(mountains);
+        }
+
+        function getFilteredMountains() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const difficulty = document.getElementById('difficultyFilter').value;
+            const altitude = document.getElementById('altitudeFilter').value;
+            const region = document.getElementById('regionFilter').value;
+            
+            let mountains = getMountains();
+            
+            if (keyword) {
+                mountains = mountains.filter(m => 
+                    m.name.toLowerCase().includes(keyword) || 
+                    m.location.toLowerCase().includes(keyword)
+                );
+            }
+            if (difficulty) {
+                mountains = mountains.filter(m => m.difficulty === difficulty);
+            }
+            if (altitude) {
+                const alt = parseInt(altitude);
+                if (alt === 1000) mountains = mountains.filter(m => m.altitude < 1000);
+                else if (alt === 2000) mountains = mountains.filter(m => m.altitude >= 1000 && m.altitude < 2000);
+                else if (alt === 3000) mountains = mountains.filter(m => m.altitude >= 2000 && m.altitude < 3000);
+                else mountains = mountains.filter(m => m.altitude >= 3000);
+            }
+            if (region) {
+                mountains = mountains.filter(m => m.location.includes(region));
+            }
+            
+            return mountains;
+        }
+
+        function renderMountains(mountains) {
+            const container = document.getElementById('mountainGrid');
+            document.getElementById('resultsCount').textContent = `共 ${mountains.length} 座山峰`;
+            
+            const totalPages = Math.ceil(mountains.length / pageSize);
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const displayMountains = mountains.slice(start, end);
+            
+            container.innerHTML = displayMountains.map(m => {
+                const imgUrl = mountainImages[m.name] || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800';
+                const diffClass = m.difficulty === '简单' ? 'diff-easy' : m.difficulty === '中等' ? 'diff-medium' : 'diff-hard';
+                return `
+                <div class="mountain-card" onclick="viewDetail(${m.id})">
+                    <div class="card-img" style="background-image: url('${imgUrl}')">
+                        <div class="card-badges">
+                            ${m.views > 10000 ? '<span class="badge badge-hot">热门</span>' : ''}
+                            ${m.isNew ? '<span class="badge badge-new">新上线</span>' : ''}
+                        </div>
+                        <div class="card-rating">
+                            <i class="fas fa-star"></i> ${m.rating || 4.5}
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${m.name}</h3>
+                        <p class="card-location"><i class="fas fa-map-marker-alt"></i> ${m.location}</p>
+                        <p class="card-desc">${m.description}</p>
+                        <div class="card-meta">
+                            <div class="card-stats">
+                                <span><i class="fas fa-mountain"></i> ${m.altitude}m</span>
+                                <span><i class="fas fa-eye"></i> ${m.views}</span>
+                            </div>
+                            <span class="difficulty ${diffClass}">${m.difficulty}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+            
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<div class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            sortMountains();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setView(view) {
+            currentView = view;
+            const grid = document.getElementById('mountainGrid');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            
+            if (view === 'list') {
+                grid.classList.add('list-view');
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            } else {
+                grid.classList.remove('list-view');
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            }
+        }
+
+        function viewDetail(id) {
+            window.location.href = `detail.html?id=${id}`;
+        }
+
+        function checkLogin() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('userName').textContent = '欢迎, ' + userData.name;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        checkLogin();
+        renderMountains(getMountains());
+    </script>
+</body>
+</html>

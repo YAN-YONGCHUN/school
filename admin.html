@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 山伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --sidebar-width: 260px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
+            padding: 30px 20px;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-decoration: none;
+        }
+        .sidebar-menu { list-style: none; }
+        .sidebar-item {
+            padding: 15px 20px;
+            color: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar-item i { width: 20px; text-align: center; }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            min-height: 100vh;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .page-title { font-size: 28px; font-weight: 700; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-icon.green { background: #e8f5e9; color: var(--primary); }
+        .stat-icon.orange { background: #fff3e0; color: var(--accent); }
+        .stat-icon.blue { background: #e3f2fd; color: #2196F3; }
+        .stat-icon.purple { background: #f3e5f5; color: #9C27B0; }
+        .stat-trend { font-size: 13px; padding: 4px 10px; border-radius: 15px; }
+        .stat-trend.up { background: #e8f5e9; color: var(--primary); }
+        .stat-trend.down { background: #ffebee; color: #f44336; }
+        .stat-value { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { color: var(--text-gray); font-size: 14px; }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-size: 18px; font-weight: 600; }
+        .chart-filter select {
+            padding: 8px 15px;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .chart-placeholder {
+            height: 250px;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #e8f5e9 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            padding-top: 20px;
+        }
+        .bar-item { text-align: center; }
+        .bar {
+            width: 40px;
+            background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .bar:hover { background: var(--accent); }
+        .bar-label { font-size: 12px; color: var(--text-gray); }
+        .pie-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+        .pie {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary) 0deg 180deg,
+                var(--accent) 180deg 270deg,
+                #2196F3 270deg 320deg,
+                #9C27B0 320deg 360deg
+            );
+        }
+        .pie-legend { list-style: none; }
+        .pie-legend li { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; }
+        .pie-legend span { width: 12px; height: 12px; border-radius: 3px; }
+
+        .data-table {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .table-title { font-size: 18px; font-weight: 600; }
+        .table-actions { display: flex; gap: 10px; }
+        .table-actions input {
+            padding: 10px 20px;
+            border: 1px solid #eee;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { font-weight: 600; color: var(--text-gray); font-size: 13px; }
+        td { font-size: 14px; }
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        .user-cell-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active { background: #e8f5e9; color: var(--primary); }
+        .status-pending { background: #fff3e0; color: var(--accent); }
+        .status-inactive { background: #f5f5f5; color: var(--text-gray); }
+        .action-btns { display: flex; gap: 8px; }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .action-btn.edit { background: #e3f2fd; color: #2196F3; }
+        .action-btn.delete { background: #ffebee; color: #f44336; }
+        .action-btn:hover { transform: scale(1.1); }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <span>⛰️</span>
+            <span>山伴后台</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                <span>数据概览</span>
+            </li>
+            <li class="sidebar-item" onclick="showSection('mountains')">
+                <i class="fas fa-mountain"></i>
+                <span>山峰管理</span>
+            </li>
+            <li class="sidebar-item" onclick="showSection('users')">
+                <i class="fas fa-users"></i>
+                <span>用户管理</span>
+            </li>
+            <li class="sidebar-item" onclick="showSection('orders')">
+                <i class="fas fa-shopping-bag"></i>
+                <span>订单管理</span>
+            </li>
+            <li class="sidebar-item" onclick="showSection('rentals')">
+                <i class="fas fa-hiking"></i>
+                <span>租借管理</span>
+            </li>
+            <li class="sidebar-item" onclick="showSection('partners')">
+                <i class="fas fa-user-friends"></i>
+                <span>搭子管理</span>
+            </li>
+            <li class="sidebar-item" onclick="location.href='index.html'">
+                <i class="fas fa-arrow-left"></i>
+                <span>返回前台</span>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">数据概览</h1>
+            <div class="header-actions">
+                <button class="btn btn-outline"><i class="fas fa-download"></i> 导出报表</button>
+                <div class="user-avatar">👤</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green"><i class="fas fa-users"></i></div>
+                    <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                </div>
+                <div class="stat-value">52,847</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orange"><i class="fas fa-mountain"></i></div>
+                    <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                </div>
+                <div class="stat-value">128</div>
+                <div class="stat-label">山峰收录</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue"><i class="fas fa-shopping-bag"></i></div>
+                    <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 23%</span>
+                </div>
+                <div class="stat-value">3,456</div>
+                <div class="stat-label">本月订单</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon purple"><i class="fas fa-yen-sign"></i></div>
+                    <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 18%</span>
+                </div>
+                <div class="stat-value">¥128,560</div>
+                <div class="stat-label">本月营收</div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">用户增长趋势</h3>
+                    <div class="chart-filter">
+                        <select>
+                            <option>近7天</option>
+                            <option>近30天</option>
+                            <option>近90天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bar-chart">
+                    <div class="bar-item"><div class="bar" style="height: 120px;"></div><span class="bar-label">周一</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 180px;"></div><span class="bar-label">周二</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 150px;"></div><span class="bar-label">周三</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 200px;"></div><span class="bar-label">周四</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 170px;"></div><span class="bar-label">周五</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 220px;"></div><span class="bar-label">周六</span></div>
+                    <div class="bar-item"><div class="bar" style="height: 190px;"></div><span class="bar-label">周日</span></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">用户来源</h3>
+                </div>
+                <div class="pie-chart">
+                    <div class="pie"></div>
+                    <ul class="pie-legend">
+                        <li><span style="background: var(--primary);"></span> 自然搜索 50%</li>
+                        <li><span style="background: var(--accent);"></span> 社交媒体 25%</li>
+                        <li><span style="background: #2196F3;"></span> 广告投放 14%</li>
+                        <li><span style="background: #9C27B0;"></span> 其他 11%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="table-header">
+                <h3 class="table-title">最新用户</h3>
+                <div class="table-actions">
+                    <input type="text" placeholder="搜索用户...">
+                    <button class="btn btn-primary">添加用户</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户</th>
+                        <th>手机号</th>
+                        <th>注册时间</th>
+                        <th>登山次数</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const users = [
+            { name: '张三', avatar: '张', phone: '138****1234', date: '2024-03-20', climbs: 12, status: 'active' },
+            { name: '李四', avatar: '李', phone: '139****5678', date: '2024-03-19', climbs: 8, status: 'active' },
+            { name: '王五', avatar: '王', phone: '137****9012', date: '2024-03-18', climbs: 5, status: 'pending' },
+            { name: '赵六', avatar: '赵', phone: '136****3456', date: '2024-03-17', climbs: 0, status: 'inactive' },
+            { name: '钱七', avatar: '钱', phone: '135****7890', date: '2024-03-16', climbs: 23, status: 'active' }
+        ];
+
+        function renderUsers() {
+            const tbody = document.getElementById('userTable');
+            tbody.innerHTML = users.map(u => {
+                const statusClass = u.status === 'active' ? 'status-active' : u.status === 'pending' ? 'status-pending' : 'status-inactive';
+                const statusText = u.status === 'active' ? '活跃' : u.status === 'pending' ? '待验证' : '未激活';
+                return `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-cell-avatar">${u.avatar}</div>
+                            <span>${u.name}</span>
+                        </div>
+                    </td>
+                    <td>${u.phone}</td>
+                    <td>${u.date}</td>
+                    <td>${u.climbs} 次</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.sidebar-item').classList.add('active');
+        }
+
+        renderUsers();
+    </script>
+</body>
+</html>

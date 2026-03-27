@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>共享登山杖 - 山伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+        
+        .navbar {
+            background: var(--white);
+            padding: 0 60px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-accent { background: var(--accent); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 100px 20px 50px; }
+        
+        .page-header { text-align: center; margin-bottom: 50px; }
+        .page-title { font-size: 36px; font-weight: 700; margin-bottom: 15px; }
+        .page-desc { color: var(--text-gray); font-size: 16px; }
+
+        .scan-section {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-radius: 24px;
+            padding: 60px;
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .scan-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1551632811-561732d1e306?w=1920') center/cover;
+            opacity: 0.15;
+        }
+        .scan-content { position: relative; z-index: 1; }
+        .scan-icon { font-size: 80px; margin-bottom: 20px; }
+        .scan-title { font-size: 28px; font-weight: 700; margin-bottom: 15px; }
+        .scan-desc { opacity: 0.9; margin-bottom: 30px; line-height: 1.8; }
+        .scan-btn {
+            background: var(--white);
+            color: var(--primary);
+            padding: 18px 50px;
+            font-size: 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .scan-btn:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .feature-box {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+        .feature-box:hover { transform: translateY(-5px); }
+        .feature-box-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: var(--white);
+        }
+        .feature-box h3 { font-size: 20px; margin-bottom: 10px; }
+        .feature-box p { color: var(--text-gray); font-size: 14px; line-height: 1.6; }
+
+        .map-section {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+        .map-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .map-header h3 { font-size: 20px; }
+        .map-content {
+            height: 400px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            position: relative;
+        }
+        .map-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--primary);
+        }
+        .map-placeholder i { font-size: 60px; margin-bottom: 15px; display: block; }
+        .map-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .map-marker {
+            position: absolute;
+            background: var(--accent);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .map-marker:hover { transform: scale(1.2); }
+        .map-marker::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .order-section {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+        .order-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .order-tab {
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            background: var(--bg-light);
+        }
+        .order-tab.active { background: var(--primary); color: var(--white); }
+        .order-list { display: flex; flex-direction: column; gap: 15px; }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+        .order-item:hover { background: #e8f5e9; }
+        .order-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--white);
+        }
+        .order-info { flex: 1; }
+        .order-info h4 { font-size: 16px; margin-bottom: 5px; }
+        .order-info p { color: var(--text-gray); font-size: 14px; }
+        .order-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-active { background: #e8f5e9; color: var(--primary); }
+        .status-done { background: #f5f5f5; color: var(--text-gray); }
+        .order-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .order-actions .btn { padding: 8px 20px; font-size: 13px; }
+
+        .price-section {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .price-card {
+            text-align: center;
+            padding: 30px;
+            border: 2px solid #eee;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        .price-card:hover { border-color: var(--primary); }
+        .price-card.popular { border-color: var(--primary); position: relative; }
+        .price-card.popular::before {
+            content: '推荐';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .price-name { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+        .price-amount { font-size: 36px; font-weight: 700; color: var(--primary); }
+        .price-unit { font-size: 14px; color: var(--text-gray); }
+        .price-features { margin-top: 20px; text-align: left; }
+        .price-features li { padding: 8px 0; color: var(--text-gray); font-size: 14px; list-style: none; }
+        .price-features li::before { content: '✓'; color: var(--primary); margin-right: 10px; }
+        .price-btn { margin-top: 20px; width: 100%; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            width: 450px;
+            max-width: 90%;
+        }
+        .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 25px; text-align: center; }
+        .modal-body { text-align: center; }
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: var(--bg-light);
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+        .modal-tips { color: var(--text-gray); font-size: 14px; line-height: 1.8; }
+        .modal-btns { display: flex; gap: 15px; margin-top: 25px; }
+        .modal-btns .btn { flex: 1; padding: 15px; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .nav-menu { display: none; }
+            .feature-row, .price-grid { grid-template-columns: 1fr; }
+            .scan-section { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <span>⛰️</span>
+            <span>山伴</span>
+        </a>
+        <div class="nav-menu">
+            <a href="index.html">首页</a>
+            <a href="rent.html" class="active">共享登山杖</a>
+            <a href="partner.html">登山搭子</a>
+            <a href="badge.html">集章商城</a>
+            <a href="spots.html">山峰列表</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-outline" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" onclick="location.href='login.html'">注册</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🥾 共享登山杖服务</h1>
+            <p class="page-desc">扫码即租，智能定位，轨迹记录，让登山更轻松</p>
+        </div>
+
+        <div class="scan-section">
+            <div class="scan-content">
+                <div class="scan-icon">📱</div>
+                <h2 class="scan-title">扫码租借登山杖</h2>
+                <p class="scan-desc">扫描景区设备二维码，一键解锁智能登山杖<br>支持微信/支付宝扫码，押金50元，归还自动退回</p>
+                <button class="scan-btn" onclick="showScanModal()">
+                    <i class="fas fa-qrcode"></i> 立即扫码租借
+                </button>
+            </div>
+        </div>
+
+        <div class="feature-row">
+            <div class="feature-box">
+                <div class="feature-box-icon">📍</div>
+                <h3>GPS定位</h3>
+                <p>实时定位追踪，记录登山轨迹<br>分享位置给好友，安全有保障</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">📊</div>
+                <h3>数据记录</h3>
+                <p>自动记录步数、里程、海拔<br>消耗卡路里等运动数据</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-box-icon">🆘</div>
+                <h3>安全预警</h3>
+                <p>偏离路线提醒、低电量预警<br>一键SOS紧急求助功能</p>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <div class="map-header">
+                <h3>🗺️ 附近租借点</h3>
+                <button class="btn btn-outline" onclick="locateMe()"><i class="fas fa-location-arrow"></i> 定位我</button>
+            </div>
+            <div class="map-content">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>地图加载中...</p>
+                </div>
+                <div class="map-markers">
+                    <div class="map-marker" style="top: 20%; left: 30%;" data-count="5" title="泰山景区"><i class="fas fa-mountain"></i></div>
+                    <div class="map-marker" style="top: 40%; left: 60%;" data-count="3" title="黄山景区"><i class="fas fa-mountain"></i></div>
+                    <div class="map-marker" style="top: 60%; left: 45%;" data-count="8" title="华山景区"><i class="fas fa-mountain"></i></div>
+                    <div class="map-marker" style="top: 75%; left: 70%;" data-count="4" title="峨眉山景区"><i class="fas fa-mountain"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-section">
+            <h3 style="margin-bottom: 20px;">📋 我的订单</h3>
+            <div class="order-tabs">
+                <div class="order-tab active" onclick="filterOrders('all')">全部</div>
+                <div class="order-tab" onclick="filterOrders('active')">租借中</div>
+                <div class="order-tab" onclick="filterOrders('done')">已完成</div>
+            </div>
+            <div class="order-list" id="orderList"></div>
+        </div>
+
+        <div class="price-section">
+            <h3 style="text-align: center;">💰 租借价格</h3>
+            <div class="price-grid">
+                <div class="price-card">
+                    <div class="price-name">按小时</div>
+                    <div class="price-amount">¥5<span class="price-unit">/小时</span></div>
+                    <ul class="price-features">
+                        <li>适合短途登山</li>
+                        <li>按实际使用计费</li>
+                        <li>押金 ¥50</li>
+                    </ul>
+                    <button class="btn btn-outline price-btn" onclick="selectPlan('hour')">选择</button>
+                </div>
+                <div class="price-card popular">
+                    <div class="price-name">按天</div>
+                    <div class="price-amount">¥29<span class="price-unit">/天</span></div>
+                    <ul class="price-features">
+                        <li>不限使用时长</li>
+                        <li>当天有效</li>
+                        <li>押金 ¥50</li>
+                        <li>赠送保险</li>
+                    </ul>
+                    <button class="btn btn-primary price-btn" onclick="selectPlan('day')">选择</button>
+                </div>
+                <div class="price-card">
+                    <div class="price-name">会员卡</div>
+                    <div class="price-amount">¥99<span class="price-unit">/月</span></div>
+                    <ul class="price-features">
+                        <li>无限次使用</li>
+                        <li>免押金</li>
+                        <li>优先预订</li>
+                        <li>专属客服</li>
+                    </ul>
+                    <button class="btn btn-outline price-btn" onclick="selectPlan('vip')">选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="scanModal">
+        <div class="modal-content">
+            <h2 class="modal-title">扫码租借</h2>
+            <div class="modal-body">
+                <div class="qr-placeholder">📷</div>
+                <p class="modal-tips">
+                    请使用微信或支付宝扫描设备上的二维码<br>
+                    扫码后自动解锁登山杖<br>
+                    使用完毕后请归还至任意租借点
+                </p>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-outline" onclick="hideScanModal()">取消</button>
+                <button class="btn btn-primary" onclick="simulateScan()">模拟扫码</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultOrders = [
+            { id: 1, mountain: '泰山景区', code: '#001', time: '2024-03-20 08:30', duration: '3小时', status: 'active', cost: 15 },
+            { id: 2, mountain: '黄山景区', code: '#002', time: '2024-03-15 09:00', duration: '5小时', status: 'done', cost: 25 },
+            { id: 3, mountain: '华山景区', code: '#003', time: '2024-03-10 07:00', duration: '8小时', status: 'done', cost: 29 }
+        ];
+
+        function getOrders() {
+            let orders = localStorage.getItem('rentOrders');
+            if (!orders) {
+                orders = defaultOrders;
+                localStorage.setItem('rentOrders', JSON.stringify(orders));
+            } else {
+                orders = JSON.parse(orders);
+            }
+            return orders;
+        }
+
+        function renderOrders(filter = 'all') {
+            let orders = getOrders();
+            if (filter !== 'all') {
+                orders = orders.filter(o => o.status === filter);
+            }
+            
+            const container = document.getElementById('orderList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 40px;">暂无订单</p>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(o => `
+                <div class="order-item">
+                    <div class="order-icon">🥾</div>
+                    <div class="order-info">
+                        <h4>${o.mountain} - 登山杖 ${o.code}</h4>
+                        <p>租借时间：${o.time} | 使用时长：${o.duration}</p>
+                        <div class="order-actions">
+                            ${o.status === 'active' ? 
+                                `<button class="btn btn-primary" onclick="returnPole(${o.id})">归还</button>
+                                 <button class="btn btn-outline" onclick="extendRent(${o.id})">续租</button>` : 
+                                `<button class="btn btn-outline" onclick="reorder('${o.mountain}')">再次租借</button>`
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <span class="order-status status-${o.status}">${o.status === 'active' ? '租借中' : '已完成'}</span>
+                        <p style="text-align: right; margin-top: 10px; font-weight: 600; color: var(--accent);">¥${o.cost}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterOrders(status) {
+            document.querySelectorAll('.order-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderOrders(status);
+        }
+
+        function showScanModal() {
+            document.getElementById('scanModal').classList.add('show');
+        }
+
+        function hideScanModal() {
+            document.getElementById('scanModal').classList.remove('show');
+        }
+
+        function simulateScan() {
+            const mountains = ['泰山景区', '华山景区', '黄山景区', '峨眉山景区'];
+            const randomMountain = mountains[Math.floor(Math.random() * mountains.length)];
+            const code = '#' + String(Math.floor(Math.random() * 900) + 100);
+            
+            const orders = getOrders();
+            orders.unshift({
+                id: Date.now(),
+                mountain: randomMountain,
+                code: code,
+                time: new Date().toLocaleString(),
+                duration: '进行中',
+                status: 'active',
+                cost: 0
+            });
+            localStorage.setItem('rentOrders', JSON.stringify(orders));
+            
+            hideScanModal();
+            renderOrders();
+            alert(`租借成功！\n景区：${randomMountain}\n登山杖编号：${code}\n请妥善使用，使用完毕后归还至任意租借点`);
+        }
+
+        function returnPole(id) {
+            let orders = getOrders();
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'done';
+                order.duration = '3小时';
+                order.cost = 15;
+                localStorage.setItem('rentOrders', JSON.stringify(orders));
+                renderOrders();
+                alert('归还成功！押金将在24小时内退回');
+            }
+        }
+
+        function extendRent(id) {
+            alert('续租成功！已延长2小时');
+        }
+
+        function reorder(mountain) {
+            alert(`正在为您预约 ${mountain} 的登山杖...`);
+        }
+
+        function locateMe() {
+            alert('正在获取您的位置...\n已找到距离您最近的租借点：泰山景区（3.2km）');
+        }
+
+        function selectPlan(plan) {
+            const plans = {
+                hour: '按小时计费',
+                day: '按天计费（推荐）',
+                vip: '会员卡'
+            };
+            alert(`已选择：${plans[plan]}\n请前往景区租借点扫码使用`);
+        }
+
+        renderOrders();
+    </script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山峰详情 - 山伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+        
+        .navbar {
+            background: var(--white);
+            padding: 0 60px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover { color: var(--primary); }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-accent { background: var(--accent); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        .hero-banner {
+            height: 50vh;
+            min-height: 400px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+        }
+        .hero-content {
+            position: absolute;
+            bottom: 40px;
+            left: 60px;
+            color: white;
+            z-index: 10;
+        }
+        .hero-title { font-size: 48px; font-weight: 700; margin-bottom: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+        .hero-meta { display: flex; gap: 30px; font-size: 16px; }
+        .hero-meta span { display: flex; align-items: center; gap: 8px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        
+        .content-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+        .card-title { font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--primary); }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .info-item {
+            background: var(--bg-light);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .info-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .info-label { color: var(--text-gray); font-size: 14px; }
+
+        .desc-text { color: var(--text-gray); line-height: 1.8; font-size: 15px; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .gallery-item {
+            height: 150px;
+            border-radius: 15px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover { transform: scale(1.05); }
+
+        .route-item {
+            background: var(--bg-light);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .route-item:hover { background: #e8f5e9; }
+        .route-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .route-name { font-size: 16px; font-weight: 600; }
+        .route-diff { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .diff-easy { background: #e8f5e9; color: var(--primary); }
+        .diff-medium { background: #fff3e0; color: #e65100; }
+        .diff-hard { background: #ffebee; color: #c62828; }
+        .route-info { display: flex; gap: 20px; color: var(--text-gray); font-size: 13px; }
+
+        .tips-list { list-style: none; }
+        .tips-list li { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 12px; }
+        .tips-list li:last-child { border-bottom: none; }
+        .tips-list i { color: var(--primary); margin-top: 3px; }
+
+        .comment-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .comment-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .comment-user { font-weight: 600; }
+        .comment-time { color: var(--text-gray); font-size: 13px; }
+        .comment-rating { color: #FFD54F; margin-left: auto; }
+        .comment-text { color: var(--text-gray); line-height: 1.6; }
+        .comment-images { display: flex; gap: 10px; margin-top: 12px; }
+        .comment-images img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; cursor: pointer; }
+
+        .comment-form { margin-top: 20px; }
+        .comment-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .comment-form textarea:focus { outline: none; border-color: var(--primary); }
+        .form-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .rating-select { display: flex; gap: 5px; }
+        .rating-select i { font-size: 24px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+        .rating-select i.active { color: #FFD54F; }
+
+        .sidebar-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+        .sidebar-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+
+        .action-btns { display: flex; flex-direction: column; gap: 12px; }
+        .action-btns .btn { width: 100%; text-align: center; padding: 15px; }
+
+        .weather-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .weather-item:last-child { border-bottom: none; }
+        .weather-day { font-weight: 500; }
+        .weather-temp { color: var(--text-gray); }
+        .weather-icon { font-size: 24px; }
+
+        .nearby-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .nearby-item:last-child { border-bottom: none; }
+        .nearby-img {
+            width: 80px;
+            height: 60px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        .nearby-info h4 { font-size: 15px; margin-bottom: 5px; }
+        .nearby-info p { color: var(--text-gray); font-size: 13px; }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-modal.show { display: flex; }
+        .image-modal img { max-width: 90%; max-height: 90%; border-radius: 10px; }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .nav-menu { display: none; }
+            .hero-content { left: 20px; bottom: 30px; }
+            .hero-title { font-size: 32px; }
+            .main-content { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <span>⛰️</span>
+            <span>山伴</span>
+        </a>
+        <div class="nav-menu">
+            <a href="index.html">首页</a>
+            <a href="rent.html">共享登山杖</a>
+            <a href="partner.html">登山搭子</a>
+            <a href="badge.html">集章商城</a>
+            <a href="spots.html">山峰列表</a>
+        </div>
+        <div class="user-info">
+            <span id="userName" style="color: var(--primary); font-weight: 500;"></span>
+            <button class="btn btn-outline" id="loginBtn" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" id="logoutBtn" onclick="logout()" style="display:none;">退出</button>
+        </div>
+    </nav>
+
+    <div class="hero-banner" id="heroBanner">
+        <div class="hero-content">
+            <h1 class="hero-title" id="mName"></h1>
+            <div class="hero-meta">
+                <span><i class="fas fa-map-marker-alt"></i> <span id="mLocation"></span></span>
+                <span><i class="fas fa-mountain"></i> 海拔 <span id="mAltitude"></span>m</span>
+                <span><i class="fas fa-eye"></i> <span id="mViews"></span> 次浏览</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="left-content">
+                <div class="content-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-value" id="mAltitude2"></div>
+                            <div class="info-label">海拔高度(m)</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value" id="mRating">4.8</div>
+                            <div class="info-label">用户评分</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value" id="mDifficulty"></div>
+                            <div class="info-label">难度等级</div>
+                        </div>
+                    </div>
+                    <h3 class="card-title"><i class="fas fa-info-circle"></i> 山峰简介</h3>
+                    <p class="desc-text" id="mDesc"></p>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title"><i class="fas fa-images"></i> 精选图片</h3>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title"><i class="fas fa-route"></i> 推荐路线</h3>
+                    <div id="routeList"></div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title"><i class="fas fa-lightbulb"></i> 登山贴士</h3>
+                    <ul class="tips-list" id="tipsList"></ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title"><i class="fas fa-comments"></i> 用户评价 <span id="commentCount" style="font-size: 14px; color: var(--text-gray); font-weight: normal;"></span></h3>
+                    <div id="commentList"></div>
+                    <div class="comment-form">
+                        <textarea id="commentText" placeholder="分享您的登山经历..."></textarea>
+                        <div class="form-row">
+                            <div class="rating-select" id="ratingSelect">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star" data-rating="5"></i>
+                            </div>
+                            <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-sidebar">
+                <div class="sidebar-card">
+                    <div class="action-btns">
+                        <button class="btn btn-accent" onclick="collect()"><i class="fas fa-heart"></i> 收藏山峰</button>
+                        <button class="btn btn-primary" onclick="location.href='partner.html'"><i class="fas fa-users"></i> 寻找搭子</button>
+                        <button class="btn btn-outline" onclick="location.href='rent.html'"><i class="fas fa-hiking"></i> 租借登山杖</button>
+                        <button class="btn btn-outline" onclick="share()"><i class="fas fa-share-alt"></i> 分享给好友</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">🌤️ 近期天气</h3>
+                    <div id="weatherList"></div>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">📍 附近山峰</h3>
+                    <div id="nearbyList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <span class="modal-close">&times;</span>
+        <img id="modalImage" src="" alt="">
+    </div>
+
+    <script>
+        const mountainImages = {
+            '泰山': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920',
+            '华山': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920',
+            '黄山': 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920',
+            '峨眉山': 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=1920',
+            '武夷山': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920',
+            '张家界': 'https://images.unsplash.com/photo-1518173946687-a4c036bc3c5a?w=1920'
+        };
+
+        const mountainRoutes = {
+            '泰山': [
+                { name: '红门经典线', difficulty: '中等', duration: '4-6小时', distance: '8.5km' },
+                { name: '天外村索道线', difficulty: '简单', duration: '2-3小时', distance: '3km' },
+                { name: '桃花峪登山线', difficulty: '中等', duration: '3-4小时', distance: '6km' }
+            ],
+            '华山': [
+                { name: '北峰索道线', difficulty: '中等', duration: '4-5小时', distance: '10km' },
+                { name: '西峰索道线', difficulty: '困难', duration: '5-6小时', distance: '12km' },
+                { name: '自古华山一条路', difficulty: '困难', duration: '6-8小时', distance: '15km' }
+            ],
+            '黄山': [
+                { name: '云谷寺索道线', difficulty: '中等', duration: '4-5小时', distance: '8km' },
+                { name: '玉屏楼索道线', difficulty: '中等', duration: '3-4小时', distance: '6km' },
+                { name: '西海大峡谷环线', difficulty: '困难', duration: '5-6小时', distance: '10km' }
+            ]
+        };
+
+        const defaultRoutes = [
+            { name: '经典登山线', difficulty: '中等', duration: '4-5小时', distance: '8km' },
+            { name: '索道观光线', difficulty: '简单', duration: '2-3小时', distance: '3km' }
+        ];
+
+        const mountainTips = {
+            '泰山': [
+                { icon: 'fa-clock', text: '建议凌晨出发，可观赏日出美景' },
+                { icon: 'fa-tshirt', text: '山顶温差大，请携带保暖衣物' },
+                { icon: 'fa-water', text: '沿途有补给点，但价格较高，建议自备水和食物' },
+                { icon: 'fa-camera', text: '十八盘、南天门是最佳拍照点' },
+                { icon: 'fa-bed', text: '山顶有宾馆，可提前预订住宿' }
+            ],
+            '华山': [
+                { icon: 'fa-exclamation-triangle', text: '长空栈道需要一定胆量，恐高者慎入' },
+                { icon: 'fa-gloves', text: '建议佩戴手套，部分路段需要攀爬铁链' },
+                { icon: 'fa-shoe-prints', text: '穿防滑登山鞋，部分路段较陡' },
+                { icon: 'fa-moon', text: '夜爬华山看日出是经典体验' },
+                { icon: 'fa-users', text: '建议结伴同行，互相照应' }
+            ]
+        };
+
+        const defaultTips = [
+            { icon: 'fa-clock', text: '出发前检查天气情况，避免恶劣天气登山' },
+            { icon: 'fa-water', text: '准备充足的饮用水和食物' },
+            { icon: 'fa-tshirt', text: '穿着专业的登山鞋和运动服装' },
+            { icon: 'fa-first-aid', text: '携带必要的急救药品和通讯设备' },
+            { icon: 'fa-users', text: '建议结伴同行，互相照应' }
+        ];
+
+        let currentRating = 5;
+        let currentMountain = null;
+
+        function getMountains() {
+            return JSON.parse(localStorage.getItem('mountains') || '[]');
+        }
+
+        function loadDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            if (!id) {
+                window.location.href = 'spots.html';
+                return;
+            }
+
+            const mountains = getMountains();
+            const mountain = mountains.find(m => m.id == id);
+            
+            if (!mountain) {
+                alert('山峰不存在');
+                window.location.href = 'spots.html';
+                return;
+            }
+
+            currentMountain = mountain;
+            mountain.views = (mountain.views || 0) + 1;
+            const index = mountains.findIndex(m => m.id == id);
+            mountains[index] = mountain;
+            localStorage.setItem('mountains', JSON.stringify(mountains));
+
+            const imgUrl = mountainImages[mountain.name] || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920';
+            document.getElementById('heroBanner').style.backgroundImage = `url('${imgUrl}')`;
+            document.getElementById('mName').textContent = mountain.name;
+            document.getElementById('mLocation').textContent = mountain.location;
+            document.getElementById('mAltitude').textContent = mountain.altitude;
+            document.getElementById('mAltitude2').textContent = mountain.altitude;
+            document.getElementById('mViews').textContent = mountain.views;
+            document.getElementById('mRating').textContent = mountain.rating || 4.8;
+            document.getElementById('mDesc').textContent = mountain.description;
+            
+            const diffClass = mountain.difficulty === '简单' ? 'diff-easy' : mountain.difficulty === '中等' ? 'diff-medium' : 'diff-hard';
+            document.getElementById('mDifficulty').innerHTML = `<span class="route-diff ${diffClass}">${mountain.difficulty}</span>`;
+
+            loadGallery(mountain.name, imgUrl);
+            loadRoutes(mountain.name);
+            loadTips(mountain.name);
+            loadComments(mountain.id);
+            loadWeather();
+            loadNearby(mountains, mountain);
+        }
+
+        function loadGallery(name, mainImg) {
+            const container = document.getElementById('galleryGrid');
+            const images = [
+                mainImg,
+                mainImg.replace('w=1920', 'w=800&h=600'),
+                mainImg.replace('w=1920', 'w=800&h=600&flip=horiz'),
+                mainImg.replace('w=1920', 'w=800&h=600&sat=-100'),
+                mainImg.replace('w=1920', 'w=800&h=600&blur=1'),
+                mainImg.replace('w=1920', 'w=800&h=600&con=20')
+            ];
+            container.innerHTML = images.map(img => 
+                `<div class="gallery-item" style="background-image: url('${img}')" onclick="openImageModal('${img}')"></div>`
+            ).join('');
+        }
+
+        function loadRoutes(name) {
+            const routes = mountainRoutes[name] || defaultRoutes;
+            const container = document.getElementById('routeList');
+            container.innerHTML = routes.map(r => {
+                const diffClass = r.difficulty === '简单' ? 'diff-easy' : r.difficulty === '中等' ? 'diff-medium' : 'diff-hard';
+                return `
+                <div class="route-item">
+                    <div class="route-header">
+                        <span class="route-name">${r.name}</span>
+                        <span class="route-diff ${diffClass}">${r.difficulty}</span>
+                    </div>
+                    <div class="route-info">
+                        <span><i class="fas fa-clock"></i> ${r.duration}</span>
+                        <span><i class="fas fa-road"></i> ${r.distance}</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function loadTips(name) {
+            const tips = mountainTips[name] || defaultTips;
+            const container = document.getElementById('tipsList');
+            container.innerHTML = tips.map(t => 
+                `<li><i class="fas ${t.icon}"></i> ${t.text}</li>`
+            ).join('');
+        }
+
+        function loadComments(mountainId) {
+            let comments = JSON.parse(localStorage.getItem('comments_' + mountainId) || '[]');
+            if (comments.length === 0) {
+                comments = [
+                    { user: '登山爱好者', avatar: '🧗', rating: 5, time: '2024-03-20', text: '风景太美了！日出让人震撼，强烈推荐大家来看看。' },
+                    { user: '户外达人', avatar: '💪', rating: 4, time: '2024-03-18', text: '登山过程虽然累，但登顶那一刻一切都值了。建议带足水和食物。' },
+                    { user: '摄影小白', avatar: '📷', rating: 5, time: '2024-03-15', text: '拍照绝佳地点，每一张都是大片！' }
+                ];
+            }
+            
+            document.getElementById('commentCount').textContent = `(${comments.length}条)`;
+            const container = document.getElementById('commentList');
+            container.innerHTML = comments.map(c => `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-avatar">${c.avatar}</div>
+                        <div>
+                            <div class="comment-user">${c.user}</div>
+                            <div class="comment-time">${c.time}</div>
+                        </div>
+                        <div class="comment-rating">${'★'.repeat(c.rating)}${'☆'.repeat(5-c.rating)}</div>
+                    </div>
+                    <div class="comment-text">${c.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadWeather() {
+            const weathers = [
+                { day: '今天', icon: '☀️', temp: '18°/8°' },
+                { day: '明天', icon: '⛅', temp: '16°/6°' },
+                { day: '后天', icon: '🌤️', temp: '20°/10°' },
+                { day: '周六', icon: '🌧️', temp: '14°/5°' }
+            ];
+            const container = document.getElementById('weatherList');
+            container.innerHTML = weathers.map(w => `
+                <div class="weather-item">
+                    <span class="weather-day">${w.day}</span>
+                    <span class="weather-icon">${w.icon}</span>
+                    <span class="weather-temp">${w.temp}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadNearby(mountains, current) {
+            const nearby = mountains.filter(m => m.id !== current.id).slice(0, 3);
+            const container = document.getElementById('nearbyList');
+            container.innerHTML = nearby.map(m => {
+                const imgUrl = mountainImages[m.name] || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=200';
+                return `
+                <div class="nearby-item" onclick="location.href='detail.html?id=${m.id}'">
+                    <div class="nearby-img" style="background-image: url('${imgUrl}')"></div>
+                    <div class="nearby-info">
+                        <h4>${m.name}</h4>
+                        <p>${m.location}</p>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function collect() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            let collects = JSON.parse(localStorage.getItem('collects') || '[]');
+            if (!collects.includes(id)) {
+                collects.push(id);
+                localStorage.setItem('collects', JSON.stringify(collects));
+                alert('收藏成功！');
+            } else {
+                alert('已收藏');
+            }
+        }
+
+        function share() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('mName').textContent,
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert('链接已复制到剪贴板！');
+            }
+        }
+
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('show');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+
+        document.getElementById('ratingSelect').addEventListener('click', function(e) {
+            if (e.target.tagName === 'I') {
+                currentRating = parseInt(e.target.dataset.rating);
+                document.querySelectorAll('#ratingSelect i').forEach((star, i) => {
+                    star.classList.toggle('active', i < currentRating);
+                });
+            }
+        });
+
+        function submitComment() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                alert('请先登录');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const text = document.getElementById('commentText').value.trim();
+            if (!text) {
+                alert('请输入评论内容');
+                return;
+            }
+
+            const userData = JSON.parse(user);
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            let comments = JSON.parse(localStorage.getItem('comments_' + id) || '[]');
+            comments.unshift({
+                user: userData.name,
+                avatar: '😊',
+                rating: currentRating,
+                time: new Date().toLocaleDateString(),
+                text: text
+            });
+            localStorage.setItem('comments_' + id, JSON.stringify(comments));
+            
+            document.getElementById('commentText').value = '';
+            loadComments(id);
+            alert('评论成功！');
+        }
+
+        function checkLogin() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('userName').textContent = '欢迎, ' + userData.name;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        checkLogin();
+        loadDetail();
+    </script>
+</body>
+</html>

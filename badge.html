@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>集章商城 - 山伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --gold: #FFD54F;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+        
+        .navbar {
+            background: var(--white);
+            padding: 0 60px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .btn {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-accent { background: var(--accent); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 100px 20px 50px; }
+        
+        .page-header { text-align: center; margin-bottom: 40px; }
+        .page-title { font-size: 36px; font-weight: 700; margin-bottom: 15px; }
+        .page-desc { color: var(--text-gray); font-size: 16px; }
+
+        .my-badges {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-radius: 24px;
+            padding: 40px;
+            color: var(--white);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .my-badges::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920') center/cover;
+            opacity: 0.1;
+        }
+        .badges-content { position: relative; z-index: 1; }
+        .badges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .badges-header h3 { font-size: 24px; }
+        .badges-stats { display: flex; gap: 40px; }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 32px; font-weight: 700; }
+        .stat-label { font-size: 14px; opacity: 0.8; }
+        .badges-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+        .badge-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            width: 120px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .badge-item:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+        .badge-item.locked { opacity: 0.5; }
+        .badge-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 10px;
+        }
+        .badge-item.locked .badge-icon { background: #999; }
+        .badge-name { font-size: 13px; font-weight: 500; }
+
+        .rewards-section {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+        .rewards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .rewards-header h3 { font-size: 22px; }
+        .points-display { display: flex; align-items: center; gap: 10px; }
+        .points-num { font-size: 24px; font-weight: 700; color: var(--accent); }
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .reward-card {
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .reward-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .reward-icon { font-size: 40px; margin-bottom: 15px; }
+        .reward-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .reward-cost { color: var(--accent); font-weight: 700; }
+        .reward-cost span { color: var(--text-gray); font-weight: normal; font-size: 13px; }
+
+        .shop-section {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: var(--shadow);
+        }
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .shop-tabs { display: flex; gap: 15px; }
+        .shop-tab {
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            background: var(--bg-light);
+            transition: all 0.3s;
+        }
+        .shop-tab.active { background: var(--primary); color: var(--white); }
+        .cart-btn {
+            position: relative;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cart-btn::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f44336;
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: none;
+        }
+        .cart-btn.has-items::after { display: block; }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+        .product-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .product-info { padding: 20px; }
+        .product-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .product-desc { color: var(--text-gray); font-size: 13px; margin-bottom: 12px; }
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-price { color: var(--accent); font-size: 20px; font-weight: 700; }
+        .product-price span { font-size: 14px; }
+        .product-sales { color: var(--text-gray); font-size: 12px; }
+        .add-cart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .add-cart-btn:hover { background: var(--primary-dark); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 25px; text-align: center; }
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; margin-bottom: 5px; }
+        .cart-item-price { color: var(--accent); font-weight: 600; }
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #eee;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-top: 2px solid #eee;
+            margin-top: 20px;
+        }
+        .cart-total-price { font-size: 24px; font-weight: 700; color: var(--accent); }
+        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
+        .modal-btns .btn { flex: 1; padding: 15px; }
+
+        .order-success { text-align: center; padding: 30px 0; }
+        .order-success-icon { font-size: 80px; margin-bottom: 20px; }
+        .order-success h3 { font-size: 24px; margin-bottom: 10px; }
+        .order-success p { color: var(--text-gray); }
+
+        @media (max-width: 1024px) {
+            .rewards-grid, .shop-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .nav-menu { display: none; }
+            .rewards-grid, .shop-grid { grid-template-columns: 1fr; }
+            .badges-stats { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <span>⛰️</span>
+            <span>山伴</span>
+        </a>
+        <div class="nav-menu">
+            <a href="index.html">首页</a>
+            <a href="rent.html">共享登山杖</a>
+            <a href="partner.html">登山搭子</a>
+            <a href="badge.html" class="active">集章商城</a>
+            <a href="spots.html">山峰列表</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-outline" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" onclick="location.href='login.html'">注册</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🏆 集章商城</h1>
+            <p class="page-desc">收集徽章，兑换权益，购买文创周边</p>
+        </div>
+
+        <div class="my-badges">
+            <div class="badges-content">
+                <div class="badges-header">
+                    <h3>🎖️ 我的徽章收藏</h3>
+                    <div class="badges-stats">
+                        <div class="stat-item">
+                            <div class="stat-num" id="badgeCount">3</div>
+                            <div class="stat-label">已解锁</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num" id="totalPoints">150</div>
+                            <div class="stat-label">积分</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="badges-grid" id="myBadges"></div>
+            </div>
+        </div>
+
+        <div class="rewards-section">
+            <div class="rewards-header">
+                <h3>🎁 积分兑换</h3>
+                <div class="points-display">
+                    <span>当前积分：</span>
+                    <span class="points-num" id="displayPoints">150</span>
+                </div>
+            </div>
+            <div class="rewards-grid">
+                <div class="reward-card" onclick="exchangeReward('优惠券', 50)">
+                    <div class="reward-icon">🎫</div>
+                    <div class="reward-name">登山杖租借券</div>
+                    <div class="reward-cost">50 积分</div>
+                </div>
+                <div class="reward-card" onclick="exchangeReward('折扣', 80)">
+                    <div class="reward-icon">💰</div>
+                    <div class="reward-name">商城8折券</div>
+                    <div class="reward-cost">80 积分</div>
+                </div>
+                <div class="reward-card" onclick="exchangeReward('周边', 120)">
+                    <div class="reward-icon">🎒</div>
+                    <div class="reward-name">登山背包</div>
+                    <div class="reward-cost">120 积分</div>
+                </div>
+                <div class="reward-card" onclick="exchangeReward('限定', 200)">
+                    <div class="reward-icon">⭐</div>
+                    <div class="reward-name">限定徽章</div>
+                    <div class="reward-cost">200 积分</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="shop-section">
+            <div class="shop-header">
+                <h3>🛒 文创商城</h3>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div class="shop-tabs">
+                        <div class="shop-tab active" onclick="filterProducts('all')">全部</div>
+                        <div class="shop-tab" onclick="filterProducts('徽章')">徽章</div>
+                        <div class="shop-tab" onclick="filterProducts('服饰')">服饰</div>
+                        <div class="shop-tab" onclick="filterProducts('周边')">周边</div>
+                    </div>
+                    <div class="cart-btn" id="cartBtn" data-count="0" onclick="showCart()">
+                        <i class="fas fa-shopping-cart"></i> 购物车
+                    </div>
+                </div>
+            </div>
+            <div class="shop-grid" id="shopGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <h2 class="modal-title">🛒 购物车</h2>
+            <div id="cartList"></div>
+            <div class="cart-total">
+                <span>合计：</span>
+                <span class="cart-total-price" id="cartTotal">¥0</span>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-outline" onclick="hideCart()">继续购物</button>
+                <button class="btn btn-primary" onclick="checkout()">立即结算</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="order-success">
+                <div class="order-success-icon">🎉</div>
+                <h3>下单成功！</h3>
+                <p>您的订单已提交，请等待发货</p>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-primary" onclick="hideSuccess()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const productImages = {
+            '徽章': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+            '服饰': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
+            '周边': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400'
+        };
+
+        function getBadges() {
+            return [
+                { id: 1, name: '泰山征服者', icon: '🏔️', unlocked: true },
+                { id: 2, name: '华山勇士', icon: '🗻', unlocked: true },
+                { id: 3, name: '黄山探索者', icon: '⛰️', unlocked: true },
+                { id: 4, name: '峨眉朝圣者', icon: '🌄', unlocked: false },
+                { id: 5, name: '日出猎人', icon: '🌅', unlocked: false },
+                { id: 6, name: '百峰达人', icon: '🌟', unlocked: false }
+            ];
+        }
+
+        function getProducts() {
+            return [
+                { id: 1, name: '泰山限定徽章', desc: '五岳之首纪念徽章', price: 29, sales: 1234, category: '徽章', badge: '热销' },
+                { id: 2, name: '华山勇士徽章', desc: '挑战险峰专属徽章', price: 35, sales: 856, category: '徽章', badge: '' },
+                { id: 3, name: '登山主题T恤', desc: '100%纯棉舒适透气', price: 89, sales: 2341, category: '服饰', badge: '热销' },
+                { id: 4, name: '登山帽', desc: '防晒透气专业帽', price: 59, sales: 1567, category: '服饰', badge: '' },
+                { id: 5, name: '登山背包', desc: '大容量轻便背包', price: 129, sales: 987, category: '周边', badge: '新品' },
+                { id: 6, name: '户外水壶', desc: '保温保冷两用', price: 49, sales: 3456, category: '周边', badge: '' },
+                { id: 7, name: '登山手杖', desc: '轻量化碳纤维', price: 199, sales: 567, category: '周边', badge: '' },
+                { id: 8, name: '纪念明信片套装', desc: '10张精美明信片', price: 19, sales: 4567, category: '周边', badge: '' }
+            ];
+        }
+
+        let cart = [];
+        let points = 150;
+
+        function renderBadges() {
+            const badges = getBadges();
+            const container = document.getElementById('myBadges');
+            container.innerHTML = badges.map(b => `
+                <div class="badge-item ${b.unlocked ? '' : 'locked'}">
+                    <div class="badge-icon">${b.icon}</div>
+                    <div class="badge-name">${b.name}</div>
+                </div>
+            `).join('');
+            
+            const unlocked = badges.filter(b => b.unlocked).length;
+            document.getElementById('badgeCount').textContent = unlocked;
+        }
+
+        function renderProducts(filter = 'all') {
+            let products = getProducts();
+            if (filter !== 'all') {
+                products = products.filter(p => p.category === filter);
+            }
+            
+            const container = document.getElementById('shopGrid');
+            container.innerHTML = products.map(p => {
+                const imgUrl = productImages[p.category] || productImages['周边'];
+                return `
+                <div class="product-card">
+                    <div class="product-img" style="background-image: url('${imgUrl}')">
+                        ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-desc">${p.desc}</div>
+                        <div class="product-footer">
+                            <div>
+                                <div class="product-price">¥${p.price}</div>
+                                <div class="product-sales">已售 ${p.sales}</div>
+                            </div>
+                            <button class="add-cart-btn" onclick="addToCart(${p.id})">
+                                <i class="fas fa-plus"></i> 加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function filterProducts(category) {
+            document.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProducts(category);
+        }
+
+        function addToCart(productId) {
+            const products = getProducts();
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            
+            updateCartBtn();
+            alert(`已添加 ${product.name} 到购物车`);
+        }
+
+        function updateCartBtn() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const cartBtn = document.getElementById('cartBtn');
+            cartBtn.setAttribute('data-count', totalItems);
+            cartBtn.classList.toggle('has-items', totalItems > 0);
+        }
+
+        function showCart() {
+            renderCart();
+            document.getElementById('cartModal').classList.add('show');
+        }
+
+        function hideCart() {
+            document.getElementById('cartModal').classList.remove('show');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartList');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 40px;">购物车是空的</p>';
+                document.getElementById('cartTotal').textContent = '¥0';
+                return;
+            }
+            
+            container.innerHTML = cart.map(item => {
+                const imgUrl = productImages[item.category] || productImages['周边'];
+                return `
+                <div class="cart-item">
+                    <div class="cart-item-img" style="background-image: url('${imgUrl}')"></div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">¥${item.price}</div>
+                        <div class="cart-item-qty">
+                            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+            
+            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            document.getElementById('cartTotal').textContent = '¥' + total;
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+            
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+            
+            updateCartBtn();
+            renderCart();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('购物车是空的');
+                return;
+            }
+            
+            hideCart();
+            document.getElementById('successModal').classList.add('show');
+            cart = [];
+            updateCartBtn();
+        }
+
+        function hideSuccess() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        function exchangeReward(name, cost) {
+            if (points >= cost) {
+                if (confirm(`确定花费 ${cost} 积分兑换 ${name} 吗？`)) {
+                    points -= cost;
+                    document.getElementById('totalPoints').textContent = points;
+                    document.getElementById('displayPoints').textContent = points;
+                    alert('兑换成功！');
+                }
+            } else {
+                alert('积分不足，快去登山打卡收集徽章吧！');
+            }
+        }
+
+        renderBadges();
+        renderProducts();
+    </script>
+</body>
+</html>

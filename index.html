@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山伴 - 登山共享平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --accent: #FF6B35;
+            --bg-light: #F5F7FA;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
+        
+        .navbar {
+            background: var(--white);
+            padding: 0 60px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; transition: color 0.3s; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-accent { background: var(--accent); color: var(--white); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: var(--white); }
+
+        .hero {
+            height: 70vh;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-slide.active { opacity: 1; }
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+        }
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+        }
+        .hero-title { font-size: 52px; font-weight: 700; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+        .hero-desc { font-size: 20px; margin-bottom: 30px; opacity: 0.95; }
+        .search-box {
+            background: white;
+            border-radius: 50px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-box input { flex: 1; border: none; outline: none; padding: 15px 25px; font-size: 16px; border-radius: 50px 0 0 50px; }
+        .search-box button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .search-box button:hover { background: var(--primary-dark); }
+        
+        .slider-dots {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .slider-dot.active { background: white; width: 30px; border-radius: 6px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .section-title { font-size: 28px; font-weight: 700; color: var(--text-dark); }
+        .section-more { color: var(--primary); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .section-more:hover { text-decoration: underline; }
+
+        .mountain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .mountain-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .mountain-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .card-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .card-img::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+        }
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .card-content { padding: 20px; }
+        .card-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .card-location { color: var(--text-gray); font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .card-stats { display: flex; gap: 15px; color: var(--text-gray); font-size: 13px; }
+        .card-stats span { display: flex; align-items: center; gap: 4px; }
+        .difficulty {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .diff-easy { background: #e8f5e9; color: var(--primary); }
+        .diff-medium { background: #fff3e0; color: #e65100; }
+        .diff-hard { background: #ffebee; color: #c62828; }
+
+        .features {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            padding: 80px 60px;
+            margin: 60px 0;
+        }
+        .features .section-title { color: white; text-align: center; margin-bottom: 50px; }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1000px; margin: 0 auto; }
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .feature-item:hover { background: rgba(255,255,255,0.2); transform: translateY(-5px); }
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+        .feature-item h3 { font-size: 22px; margin-bottom: 12px; }
+        .feature-item p { opacity: 0.9; line-height: 1.6; }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin: 60px 0;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .stat-num { font-size: 42px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        .stat-label { color: var(--text-gray); font-size: 15px; }
+
+        .footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 60px 60px 30px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+        .footer-brand h3 { font-size: 28px; margin-bottom: 15px; color: var(--primary-light); }
+        .footer-brand p { color: #999; line-height: 1.8; }
+        .footer-links h4 { font-size: 16px; margin-bottom: 20px; }
+        .footer-links a { display: block; color: #999; text-decoration: none; margin-bottom: 12px; transition: color 0.3s; }
+        .footer-links a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 30px; text-align: center; color: #666; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 20px; }
+            .nav-menu { display: none; }
+            .hero-title { font-size: 32px; }
+            .hero-desc { font-size: 16px; }
+            .features { padding: 50px 20px; }
+            .features-grid, .stats-section { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <span>⛰️</span>
+            <span>山伴</span>
+        </a>
+        <div class="nav-menu">
+            <a href="index.html" class="active">首页</a>
+            <a href="rent.html">共享登山杖</a>
+            <a href="partner.html">登山搭子</a>
+            <a href="badge.html">集章商城</a>
+            <a href="spots.html">山峰列表</a>
+        </div>
+        <div class="user-info">
+            <span id="userName" style="color: var(--primary); font-weight: 500;"></span>
+            <button class="btn btn-outline" id="loginBtn" onclick="location.href='login.html'">登录</button>
+            <button class="btn btn-primary" id="registerBtn" onclick="location.href='login.html'">注册</button>
+            <button class="btn btn-accent" id="logoutBtn" onclick="logout()" style="display:none;">退出</button>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-slider" id="heroSlider"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">探索山峰 征服自我</h1>
+            <p class="hero-desc">与志同道合的伙伴一起，开启您的登山之旅</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索山峰名称或地区...">
+                <button onclick="searchMountains()"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+        </div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">🏔️ 热门山峰</h2>
+            <a href="spots.html" class="section-more">查看全部 <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="mountain-grid" id="mountainGrid"></div>
+    </div>
+
+    <div class="features">
+        <h2 class="section-title">✨ 核心功能</h2>
+        <div class="features-grid">
+            <div class="feature-item" onclick="location.href='rent.html'">
+                <div class="feature-icon">🥾</div>
+                <h3>共享登山杖</h3>
+                <p>扫码即租，智能定位，轨迹记录<br>让登山更轻松安全</p>
+            </div>
+            <div class="feature-item" onclick="location.href='partner.html'">
+                <div class="feature-icon">👥</div>
+                <h3>登山搭子</h3>
+                <p>智能匹配同路线、同时间、同强度<br>的登山伙伴</p>
+            </div>
+            <div class="feature-item" onclick="location.href='badge.html'">
+                <div class="feature-icon">🏆</div>
+                <h3>集章商城</h3>
+                <p>登山打卡解锁电子徽章<br>集章兑换专属权益</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-num">100+</div>
+                <div class="stat-label">山峰收录</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">50万+</div>
+                <div class="stat-label">用户数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">10万+</div>
+                <div class="stat-label">成功结伴</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">98%</div>
+                <div class="stat-label">好评率</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>⛰️ 山伴</h3>
+                <p>专业的登山共享平台，让每一次攀登都值得纪念。<br>我们致力于为登山爱好者提供最便捷的服务。</p>
+            </div>
+            <div class="footer-links">
+                <h4>快速导航</h4>
+                <a href="spots.html">山峰列表</a>
+                <a href="rent.html">共享登山杖</a>
+                <a href="partner.html">登山搭子</a>
+                <a href="badge.html">集章商城</a>
+            </div>
+            <div class="footer-links">
+                <h4>帮助中心</h4>
+                <a href="#">常见问题</a>
+                <a href="#">使用指南</a>
+                <a href="#">安全须知</a>
+                <a href="#">联系我们</a>
+            </div>
+            <div class="footer-links">
+                <h4>关于我们</h4>
+                <a href="#">平台介绍</a>
+                <a href="#">加入我们</a>
+                <a href="#">用户协议</a>
+                <a href="#">隐私政策</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 山伴 - 登山共享平台 | 让每一次攀登都值得纪念</p>
+        </div>
+    </footer>
+
+    <script>
+        const heroImages = [
+            { url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920', title: '泰山日出' },
+            { url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920', title: '华山险峰' },
+            { url: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920', title: '黄山云海' },
+            { url: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=1920', title: '峨眉金顶' }
+        ];
+
+        const mountainImages = {
+            '泰山': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
+            '华山': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800',
+            '黄山': 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800',
+            '峨眉山': 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800',
+            '武夷山': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+            '张家界': 'https://images.unsplash.com/photo-1518173946687-a4c036bc3c5a?w=800'
+        };
+
+        let currentSlide = 0;
+
+        function initHeroSlider() {
+            const slider = document.getElementById('heroSlider');
+            const dots = document.getElementById('sliderDots');
+            
+            slider.innerHTML = heroImages.map((img, i) => 
+                `<div class="hero-slide ${i === 0 ? 'active' : ''}" style="background-image: url('${img.url}')"></div>`
+            ).join('');
+            
+            dots.innerHTML = heroImages.map((_, i) => 
+                `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`
+            ).join('');
+
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % heroImages.length;
+                updateSlider();
+            }, 5000);
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+
+        function updateSlider() {
+            document.querySelectorAll('.hero-slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            document.querySelectorAll('.slider-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function checkLogin() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                document.getElementById('userName').textContent = '欢迎, ' + userData.name;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('registerBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        function getMountains() {
+            let mountains = localStorage.getItem('mountains');
+            if (!mountains) {
+                const defaultMountains = [
+                    { id: 1, name: '泰山', location: '山东省泰安市', altitude: 1545, difficulty: '中等', description: '五岳之首，气势磅礴，是中华民族精神文化的象征。日出美景令人震撼。', views: 12580, rating: 4.8 },
+                    { id: 2, name: '华山', location: '陕西省渭南市', altitude: 2155, difficulty: '困难', description: '奇险天下第一山，以险峻著称，是道教主流全真派圣地。长空栈道惊险刺激。', views: 9876, rating: 4.9 },
+                    { id: 3, name: '黄山', location: '安徽省黄山市', altitude: 1865, difficulty: '中等', description: '天下第一奇山，以奇松、怪石、云海、温泉四绝闻名于世。', views: 15680, rating: 4.9 },
+                    { id: 4, name: '峨眉山', location: '四川省乐山市', altitude: 3099, difficulty: '困难', description: '佛教名山，秀甲天下，是中国四大佛教名山之一。金顶日出云海壮观。', views: 8543, rating: 4.7 },
+                    { id: 5, name: '武夷山', location: '福建省武夷山市', altitude: 2158, difficulty: '简单', description: '世界文化与自然遗产，以丹霞地貌著称，九曲溪竹筏漂流别有风味。', views: 6789, rating: 4.6 },
+                    { id: 6, name: '张家界', location: '湖南省张家界市', altitude: 1518, difficulty: '中等', description: '奇峰三千，秀水八百，是电影阿凡达取景地，玻璃栈道惊险刺激。', views: 11234, rating: 4.8 }
+                ];
+                localStorage.setItem('mountains', JSON.stringify(defaultMountains));
+                return defaultMountains;
+            }
+            return JSON.parse(mountains);
+        }
+
+        function renderMountains(mountains) {
+            const container = document.getElementById('mountainGrid');
+            container.innerHTML = mountains.map(m => {
+                const imgUrl = mountainImages[m.name] || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800';
+                const diffClass = m.difficulty === '简单' ? 'diff-easy' : m.difficulty === '中等' ? 'diff-medium' : 'diff-hard';
+                return `
+                <div class="mountain-card" onclick="viewDetail(${m.id})">
+                    <div class="card-img" style="background-image: url('${imgUrl}')">
+                        <span class="card-badge">热门</span>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${m.name}</h3>
+                        <p class="card-location"><i class="fas fa-map-marker-alt"></i> ${m.location}</p>
+                        <div class="card-meta">
+                            <div class="card-stats">
+                                <span><i class="fas fa-mountain"></i> ${m.altitude}m</span>
+                                <span><i class="fas fa-eye"></i> ${m.views}</span>
+                            </div>
+                            <span class="difficulty ${diffClass}">${m.difficulty}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function searchMountains() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const mountains = getMountains();
+            const filtered = mountains.filter(m => 
+                m.name.toLowerCase().includes(keyword) || 
+                m.location.toLowerCase().includes(keyword)
+            );
+            if (filtered.length > 0) {
+                renderMountains(filtered);
+            } else {
+                alert('未找到匹配的山峰，请尝试其他关键词');
+            }
+        }
+
+        function viewDetail(id) {
+            window.location.href = 'detail.html?id=' + id;
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMountains();
+            }
+        });
+
+        initHeroSlider();
+        checkLogin();
+        renderMountains(getMountains());
+    </script>
+</body>
+</html>
