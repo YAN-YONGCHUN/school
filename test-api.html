@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #666;
+            margin-top: 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .info {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 API 连接诊断测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 测试 API 基础连接</h2>
+        <button onclick="testBasicConnection()">测试基础连接</button>
+        <div id="basicResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 测试 CORS 预检请求</h2>
+        <button onclick="testCORSPreflight()">测试 CORS</button>
+        <div id="corsResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 测试登录 API</h2>
+        <button onclick="testLogin()">测试登录</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 测试注册 API</h2>
+        <button onclick="testRegister()">测试注册</button>
+        <div id="registerResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 检查浏览器信息</h2>
+        <button onclick="checkBrowser()">检查浏览器</button>
+        <div id="browserResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://memsavor.netlify.app/.netlify/functions';
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+        }
+
+        async function testBasicConnection() {
+            const elementId = 'basicResult';
+            document.getElementById(elementId).innerHTML = '';
+            
+            try {
+                log(elementId, '开始测试基础连接...', 'info');
+                log(elementId, `API 地址: ${API_BASE_URL}/mountains`, 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/mountains`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log(elementId, `响应状态: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                log(elementId, `响应数据: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+            } catch (error) {
+                log(elementId, `❌ 错误: ${error.message}`, 'error');
+                log(elementId, `错误堆栈: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testCORSPreflight() {
+            const elementId = 'corsResult';
+            document.getElementById(elementId).innerHTML = '';
+            
+            try {
+                log(elementId, '测试 CORS 预检请求...', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                log(elementId, `预检响应状态: ${response.status}`, 
+                    response.ok ? 'success' : 'error');
+                
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                
+                log(elementId, `响应头:\n${JSON.stringify(headers, null, 2)}`, 'info');
+                
+                if (headers['access-control-allow-origin']) {
+                    log(elementId, '✅ CORS 配置正确', 'success');
+                } else {
+                    log(elementId, '❌ CORS 配置缺失', 'error');
+                }
+                
+            } catch (error) {
+                log(elementId, `❌ CORS 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const elementId = 'loginResult';
+            document.getElementById(elementId).innerHTML = '';
+            
+            try {
+                log(elementId, '测试登录 API...', 'info');
+                log(elementId, '账号: 13800138000, 密码: 123456', 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        account: '13800138000',
+                        password: '123456'
+                    })
+                });
+
+                log(elementId, `响应状态: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                log(elementId, `响应数据: ${JSON.stringify(data, null, 2)}`, 
+                    data.success ? 'success' : 'error');
+                
+            } catch (error) {
+                log(elementId, `❌ 登录失败: ${error.message}`, 'error');
+                log(elementId, `错误类型: ${error.name}`, 'error');
+                log(elementId, `错误堆栈: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testRegister() {
+            const elementId = 'registerResult';
+            document.getElementById(elementId).innerHTML = '';
+            
+            try {
+                log(elementId, '测试注册 API...', 'info');
+                
+                const testPhone = '139' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+                log(elementId, `测试手机号: ${testPhone}`, 'info');
+                
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: '测试用户',
+                        phone: testPhone,
+                        password: '123456'
+                    })
+                });
+
+                log(elementId, `响应状态: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                log(elementId, `响应数据: ${JSON.stringify(data, null, 2)}`, 
+                    data.success ? 'success' : 'error');
+                
+            } catch (error) {
+                log(elementId, `❌ 注册失败: ${error.message}`, 'error');
+                log(elementId, `错误类型: ${error.name}`, 'error');
+            }
+        }
+
+        function checkBrowser() {
+            const elementId = 'browserResult';
+            document.getElementById(elementId).innerHTML = '';
+            
+            log(elementId, '浏览器信息:', 'info');
+            log(elementId, `User Agent: ${navigator.userAgent}`, 'info');
+            log(elementId, `当前页面: ${window.location.href}`, 'info');
+            log(elementId, `页面来源: ${window.location.origin}`, 'info');
+            log(elementId, `是否 HTTPS: ${window.location.protocol === 'https:' ? '是' : '否'}`, 'info');
+            
+            log(elementId, '\nAPI 配置:', 'info');
+            log(elementId, `API 地址: ${API_BASE_URL}`, 'info');
+            log(elementId, `是否跨域: ${!API_BASE_URL.includes(window.location.hostname) ? '是' : '否'}`, 'info');
+            
+            log(elementId, '\nLocalStorage:', 'info');
+            log(elementId, `Token: ${localStorage.getItem('memsavor_token') || '未设置'}`, 'info');
+            log(elementId, `User: ${localStorage.getItem('currentUser') || '未设置'}`, 'info');
+        }
+    </script>
+</body>
+</html>
