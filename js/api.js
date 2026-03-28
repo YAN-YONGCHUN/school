@@ -1,6 +1,7 @@
-// Netlify API 配置
-// 实际部署地址：https://memsavor.netlify.app
-const API_BASE_URL = 'https://memsavor.netlify.app/.netlify/functions';
+// Cloudflare Workers API 配置
+// 部署后请更新为您的 Workers 地址
+// 格式：https://your-worker-name.your-subdomain.workers.dev
+const API_BASE_URL = 'https://memsavor-api.YOUR-SUBDOMAIN.workers.dev';
 
 const TOKEN_KEY = 'memsavor_token';
 const USER_KEY = 'currentUser';

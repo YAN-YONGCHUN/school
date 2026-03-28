@@ -1,21 +1,13 @@
 {
   "name": "memsavor-api",
   "version": "1.0.0",
-  "description": "MemSavor 登山共享平台 API",
+  "description": "MemSavor 登山共享平台 API - Cloudflare Workers",
   "scripts": {
-    "dev": "vercel dev",
-    "deploy": "vercel --prod",
-    "netlify:dev": "netlify dev",
-    "netlify:build": "netlify build",
-    "netlify:deploy": "netlify deploy --prod"
-  },
-  "dependencies": {
-    "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3",
-    "uuid": "^9.0.0"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
   },
   "devDependencies": {
-    "vercel": "^32.0.0",
-    "netlify-cli": "^17.0.0"
+    "wrangler": "^3.0.0"
   }
 }
