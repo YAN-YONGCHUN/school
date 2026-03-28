@@ -83,12 +83,13 @@ function generateId() {
 }
 
 function generateToken(payload) {
-    return btoa(JSON.stringify({ ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
+    const data = JSON.stringify({ ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+    return btoa(encodeURIComponent(data));
 }
 
 function verifyToken(token) {
     try {
-        const decoded = JSON.parse(atob(token));
+        const decoded = JSON.parse(decodeURIComponent(atob(token)));
         if (decoded.exp < Date.now()) return null;
         return decoded;
     } catch {
