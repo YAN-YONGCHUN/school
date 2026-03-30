@@ -1051,9 +1051,10 @@
             const mapContainer = element.querySelector('.route-map-container');
             if (element.classList.contains('expanded') && mapContainer && !mapContainer.dataset.initialized) {
                 mapContainer.dataset.initialized = 'true';
-                const routeIndex = Array.from(element.parentElement.children).indexOf(element);
                 const mountainName = localStorage.getItem('currentMountainName') || '泰山';
                 const routes = mountainRoutes[mountainName] || defaultRoutes;
+                const allRoutes = document.querySelectorAll('.route-item');
+                const routeIndex = Array.from(allRoutes).indexOf(element);
                 const route = routes[routeIndex];
                 if (route && route.coordinates) {
                     initRouteMap(mapContainer.id, route.coordinates);
