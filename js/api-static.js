@@ -31,11 +31,18 @@ function initDataStore() {
 
     if (!localStorage.getItem('mountains')) {
         localStorage.setItem('mountains', JSON.stringify([
-            { id: 1, name: '华山', location: '陕西省渭南市', altitude: 2154, difficulty: '困难', rating: 4.8, views: 1256, description: '五岳之一，以险著称', badges: ['险峰', '日出'], isNew: false },
-            { id: 2, name: '黄山', location: '安徽省黄山市', altitude: 1864, difficulty: '中等', rating: 4.9, views: 2341, description: '天下第一奇山', badges: ['云海', '奇松'], isNew: false },
-            { id: 3, name: '峨眉山', location: '四川省乐山市', altitude: 3099, difficulty: '困难', rating: 4.7, views: 987, description: '四大佛教名山之一', badges: ['佛光', '云海'], isNew: true },
-            { id: 4, name: '武夷山', location: '福建省南平市', altitude: 2158, difficulty: '简单', rating: 4.6, views: 654, description: '世界文化与自然双重遗产', badges: ['丹霞', '茶文化'], isNew: false },
-            { id: 5, name: '张家界', location: '湖南省张家界市', altitude: 1518, difficulty: '中等', rating: 4.8, views: 1823, description: '奇峰三千，秀水八百', badges: ['奇峰', '玻璃桥'], isNew: true }
+            { id: 1, name: '泰山', location: '山东省泰安市', altitude: 1545, difficulty: '中等', description: '五岳之首，气势磅礴，是中华民族精神文化的象征。日出美景令人震撼，十八盘险峻壮观。', views: 12580, rating: 4.8, isNew: false, badges: ['日出', '云海', '封禅'] },
+            { id: 2, name: '华山', location: '陕西省渭南市', altitude: 2155, difficulty: '困难', description: '奇险天下第一山，以险峻著称，是道教主流全真派圣地。长空栈道惊险刺激，东峰日出壮观。', views: 9876, rating: 4.9, isNew: false, badges: ['险峰', '日出', '长空栈道'] },
+            { id: 3, name: '黄山', location: '安徽省黄山市', altitude: 1865, difficulty: '中等', description: '天下第一奇山，以奇松、怪石、云海、温泉四绝闻名于世。迎客松是黄山的标志性景观。', views: 15680, rating: 4.9, isNew: false, badges: ['云海', '奇松', '怪石'] },
+            { id: 4, name: '峨眉山', location: '四川省乐山市', altitude: 3099, difficulty: '困难', description: '佛教名山，秀甲天下，是中国四大佛教名山之一。金顶日出云海壮观，猴子可爱。', views: 8543, rating: 4.7, isNew: true, badges: ['佛光', '云海', '金顶'] },
+            { id: 5, name: '武夷山', location: '福建省南平市', altitude: 2158, difficulty: '简单', description: '世界文化与自然遗产，以丹霞地貌著称，九曲溪竹筏漂流别有风味。大红袍茶闻名天下。', views: 6789, rating: 4.6, isNew: false, badges: ['丹霞', '茶文化', '九曲溪'] },
+            { id: 6, name: '张家界', location: '湖南省张家界市', altitude: 1518, difficulty: '中等', description: '奇峰三千，秀水八百，是电影阿凡达取景地，玻璃栈道惊险刺激。天门山洞气势磅礴。', views: 11234, rating: 4.8, isNew: true, badges: ['奇峰', '玻璃桥', '天门山'] },
+            { id: 7, name: '庐山', location: '江西省九江市', altitude: 1474, difficulty: '中等', description: '不识庐山真面目，只缘身在此山中。以雄、奇、险、秀闻名，是世界文化遗产。', views: 7890, rating: 4.5, isNew: false, badges: ['云雾', '瀑布', '别墅'] },
+            { id: 8, name: '衡山', location: '湖南省衡阳市', altitude: 1300, difficulty: '简单', description: '南岳衡山，五岳之一，以秀著称。祝融峰是最高峰，香火鼎盛。', views: 5678, rating: 4.4, isNew: false, badges: ['祈福', '秀美', '寺庙'] },
+            { id: 9, name: '嵩山', location: '河南省登封市', altitude: 1491, difficulty: '中等', description: '中岳嵩山，五岳之一，少林寺所在地。嵩阳书院是中国古代四大书院之一。', views: 6543, rating: 4.5, isNew: false, badges: ['少林', '书院', '武术'] },
+            { id: 10, name: '玉龙雪山', location: '云南省丽江市', altitude: 5596, difficulty: '困难', description: '纳西族神山，终年积雪。冰川公园壮观，蓝月谷如仙境。', views: 15678, rating: 4.9, isNew: true, badges: ['冰川', '雪景', '蓝月谷'] },
+            { id: 11, name: '四姑娘山', location: '四川省阿坝州', altitude: 6250, difficulty: '困难', description: '东方阿尔卑斯，四座雪峰如四位姑娘。双桥沟、长坪沟、海子沟各具特色。', views: 8765, rating: 4.8, isNew: true, badges: ['雪山', '徒步', '摄影'] },
+            { id: 12, name: '三清山', location: '江西省上饶市', altitude: 1819, difficulty: '中等', description: '道教名山，世界自然遗产。巨蟒出山、东方女神等奇石令人叹为观止。', views: 7654, rating: 4.7, isNew: false, badges: ['道教', '奇石', '云海'] }
         ]));
     }
 

@@ -49,8 +49,18 @@
             text-align: center;
         }
         .login-banner-icon {
-            font-size: 80px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 30px;
+        }
+        .login-banner-icon i {
+            font-size: 48px;
+            color: white;
         }
         .login-banner h1 {
             font-size: 28px;
@@ -92,11 +102,24 @@
         .form-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 24px;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 10px;
+        }
+        .form-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-logo-icon i {
+            color: white;
+            font-size: 20px;
         }
         .form-title {
             font-size: 28px;
@@ -252,21 +275,25 @@
 <body>
     <div class="login-container">
         <div class="login-banner">
-            <div class="login-banner-icon">🛡️</div>
+            <div class="login-banner-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
             <h1>MemSavor 管理后台</h1>
             <p>专业的登山平台管理系统<br>安全、高效、便捷</p>
             <ul class="login-banner-features">
-                <li><i class="fas fa-check"></i> 数据实时同步</li>
-                <li><i class="fas fa-check"></i> 多维度数据分析</li>
-                <li><i class="fas fa-check"></i> 安全权限管理</li>
-                <li><i class="fas fa-check"></i> 操作日志追踪</li>
+                <li><i class="fas fa-check-circle"></i> 数据实时同步</li>
+                <li><i class="fas fa-chart-line"></i> 多维度数据分析</li>
+                <li><i class="fas fa-user-lock"></i> 安全权限管理</li>
+                <li><i class="fas fa-history"></i> 操作日志追踪</li>
             </ul>
         </div>
 
         <div class="login-form-section">
             <div class="form-header">
                 <div class="form-logo">
-                    <span>⛰️</span>
+                    <div class="form-logo-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
                     <span>MemSavor Admin</span>
                 </div>
                 <h2 class="form-title">管理员登录</h2>
@@ -277,14 +304,14 @@
                 <div class="form-group">
                     <label>管理员账号</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-user-shield"></i>
+                        <i class="fas fa-user-tie"></i>
                         <input type="text" class="form-input" id="adminAccount" placeholder="请输入管理员账号" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>登录密码</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
+                        <i class="fas fa-key"></i>
                         <input type="password" class="form-input" id="adminPassword" placeholder="请输入密码" required>
                     </div>
                 </div>
@@ -295,20 +322,20 @@
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i>
+                    <i class="fas fa-arrow-right-to-bracket"></i>
                     <span>安全登录</span>
                 </button>
             </form>
 
             <div class="security-notice">
-                <i class="fas fa-shield-alt"></i>
+                <i class="fas fa-triangle-exclamation"></i>
                 <div>
                     <strong>安全提示：</strong>请勿在公共电脑上保存登录信息，使用完毕请及时退出登录。
                 </div>
             </div>
 
             <a href="index.html" class="back-link">
-                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-house"></i>
                 <span>返回前台首页</span>
             </a>
         </div>
@@ -359,7 +386,7 @@
                 showToast(error.message || '登录失败', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>安全登录</span>';
+                submitBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i><span>安全登录</span>';
             }
         }
 

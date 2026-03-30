@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>集章商城 - PorSavor</title>
+    <title>限定徽章活动 - PorSavor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=7f15390a1a429eaa11dc14de4b750a7b&plugin=AMap.Walking"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -53,203 +54,229 @@
         .btn-primary { background: var(--primary); color: var(--white); }
         .btn-accent { background: var(--accent); color: var(--white); }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-gold { background: linear-gradient(135deg, #FFD54F, #FFA000); color: #333; }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 100px 20px 50px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 50px; }
         
-        .page-header { text-align: center; margin-bottom: 40px; }
-        .page-title { font-size: 36px; font-weight: 700; margin-bottom: 15px; }
-        .page-desc { color: var(--text-gray); font-size: 16px; }
+        .page-header { text-align: center; margin-bottom: 50px; }
+        .page-title { font-size: 42px; font-weight: 700; margin-bottom: 15px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-desc { color: var(--text-gray); font-size: 18px; }
 
-        .my-badges {
+        .stats-banner {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
             border-radius: 24px;
             padding: 40px;
             color: var(--white);
             margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+        }
+        .stat-icon { font-size: 40px; margin-bottom: 10px; }
+        .stat-num { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title i { color: var(--accent); }
+
+        .current-activity {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+        
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        
+        .activity-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        .my-badges::before {
+        .activity-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .activity-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920') center/cover;
-            opacity: 0.1;
+            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800') center/cover;
+            opacity: 0.15;
         }
-        .badges-content { position: relative; z-index: 1; }
-        .badges-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+        .activity-content { position: relative; z-index: 1; }
+        .activity-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gold);
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
         }
-        .badges-header h3 { font-size: 24px; }
-        .badges-stats { display: flex; gap: 40px; }
-        .stat-item { text-align: center; }
-        .stat-num { font-size: 32px; font-weight: 700; }
-        .stat-label { font-size: 14px; opacity: 0.8; }
-        .badges-grid { display: flex; gap: 20px; flex-wrap: wrap; }
-        .badge-item {
-            background: rgba(255,255,255,0.15);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            width: 120px;
+        .activity-month { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
+        .activity-mountain { font-size: 24px; font-weight: 700; margin-bottom: 15px; }
+        .activity-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item { text-align: center; }
+        .info-label { font-size: 12px; opacity: 0.8; margin-bottom: 3px; }
+        .info-value { font-size: 16px; font-weight: 600; }
+        .activity-progress {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .progress-text { font-size: 13px; text-align: center; }
+        .activity-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.3s;
         }
-        .badge-item:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-        .badge-item.locked { opacity: 0.5; }
+        .activity-btn:hover { transform: scale(1.02); }
+        .activity-btn.registered { background: var(--gold); color: #333; }
+
+        .my-badges-section {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        .badge-card {
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .badge-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .badge-card.unlocked { background: linear-gradient(135deg, var(--gold), #FFA000); }
         .badge-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 100%);
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            margin: 0 auto 10px;
+            font-size: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .badge-item.locked .badge-icon { background: #999; }
-        .badge-name { font-size: 13px; font-weight: 500; }
+        .badge-name { font-weight: 600; margin-bottom: 5px; }
+        .badge-date { font-size: 12px; color: var(--text-gray); }
+        .badge-serial {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
 
-        .rewards-section {
+        .route-section {
             background: var(--white);
             border-radius: 24px;
-            padding: 35px;
-            margin-bottom: 40px;
+            padding: 40px;
             box-shadow: var(--shadow);
         }
-        .rewards-header {
+        .route-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
         }
-        .rewards-header h3 { font-size: 22px; }
-        .points-display { display: flex; align-items: center; gap: 10px; }
-        .points-num { font-size: 24px; font-weight: 700; color: var(--accent); }
-        .rewards-grid {
+        .route-tabs { display: flex; gap: 10px; }
+        .route-tab {
+            padding: 10px 20px;
+            background: var(--bg-light);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .route-tab.active { background: var(--primary); color: white; }
+        
+        .route-map {
+            height: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        #routeMap { width: 100%; height: 100%; }
+        
+        .route-info-card {
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 25px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
         }
-        .reward-card {
-            background: var(--bg-light);
-            border-radius: 16px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .reward-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-        .reward-icon { font-size: 40px; margin-bottom: 15px; }
-        .reward-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-        .reward-cost { color: var(--accent); font-weight: 700; }
-        .reward-cost span { color: var(--text-gray); font-weight: normal; font-size: 13px; }
-
-        .shop-section {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: var(--shadow);
-        }
-        .shop-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .shop-tabs { display: flex; gap: 15px; }
-        .shop-tab {
-            padding: 10px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            background: var(--bg-light);
-            transition: all 0.3s;
-        }
-        .shop-tab.active { background: var(--primary); color: var(--white); }
-        .cart-btn {
-            position: relative;
-            padding: 10px 20px;
-            background: var(--accent);
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .cart-btn::after {
-            content: attr(data-count);
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #f44336;
-            color: white;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            display: none;
-        }
-        .cart-btn.has-items::after { display: block; }
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-        }
-        .product-card {
-            background: var(--white);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img {
-            height: 180px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        .product-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-        }
-        .product-info { padding: 20px; }
-        .product-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-        .product-desc { color: var(--text-gray); font-size: 13px; margin-bottom: 12px; }
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .product-price { color: var(--accent); font-size: 20px; font-weight: 700; }
-        .product-price span { font-size: 14px; }
-        .product-sales { color: var(--text-gray); font-size: 12px; }
-        .add-cart-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-        .add-cart-btn:hover { background: var(--primary-dark); }
+        .route-stat { text-align: center; }
+        .route-stat-icon { font-size: 24px; margin-bottom: 8px; color: var(--primary); }
+        .route-stat-value { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+        .route-stat-label { font-size: 13px; color: var(--text-gray); }
 
         .modal {
             display: none;
@@ -258,7 +285,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             align-items: center;
             justify-content: center;
             z-index: 2000;
@@ -268,69 +295,59 @@
             background: var(--white);
             border-radius: 24px;
             padding: 40px;
-            width: 500px;
+            width: 600px;
             max-width: 90%;
             max-height: 90vh;
             overflow-y: auto;
         }
-        .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 25px; text-align: center; }
-        .cart-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .cart-item:last-child { border-bottom: none; }
-        .cart-item-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            background-size: cover;
-            background-position: center;
-        }
-        .cart-item-info { flex: 1; }
-        .cart-item-name { font-weight: 600; margin-bottom: 5px; }
-        .cart-item-price { color: var(--accent); font-weight: 600; }
-        .cart-item-qty {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .qty-btn {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #eee;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .cart-total {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-top: 2px solid #eee;
-            margin-top: 20px;
+            margin-bottom: 25px;
         }
-        .cart-total-price { font-size: 24px; font-weight: 700; color: var(--accent); }
-        .modal-btns { display: flex; gap: 15px; margin-top: 20px; }
-        .modal-btns .btn { flex: 1; padding: 15px; }
-
-        .order-success { text-align: center; padding: 30px 0; }
-        .order-success-icon { font-size: 80px; margin-bottom: 20px; }
-        .order-success h3 { font-size: 24px; margin-bottom: 10px; }
-        .order-success p { color: var(--text-gray); }
+        .modal-title { font-size: 24px; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+        .modal-close:hover { color: var(--text-dark); }
+        
+        .register-form { display: flex; flex-direction: column; gap: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .fee-info {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .fee-amount { font-size: 28px; font-weight: 700; color: var(--accent); }
+        .fee-note { font-size: 13px; color: var(--text-gray); margin-top: 5px; }
 
         @media (max-width: 1024px) {
-            .rewards-grid, .shop-grid { grid-template-columns: repeat(2, 1fr); }
+            .activity-grid { grid-template-columns: 1fr; }
+            .stats-banner { grid-template-columns: repeat(2, 1fr); }
+            .route-info-card { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             .navbar { padding: 0 20px; }
             .nav-menu { display: none; }
-            .rewards-grid, .shop-grid { grid-template-columns: 1fr; }
-            .badges-stats { gap: 20px; }
+            .stats-banner { grid-template-columns: 1fr; }
+            .route-info-card { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -338,13 +355,13 @@
     <nav class="navbar">
         <a href="index.html" class="logo">
             <span>⛰️</span>
-            <span>MemSavor</span>
+            <span>PorSavor</span>
         </a>
         <div class="nav-menu">
             <a href="index.html">首页</a>
             <a href="rent.html">共享登山杖</a>
-            <a href="partner.html">登山搭子</a>
-            <a href="badge.html" class="active">集章商城</a>
+            <a href="partner.html">登山空间</a>
+            <a href="badge.html" class="active">限定徽章</a>
             <a href="spots.html">山峰列表</a>
         </div>
         <div class="nav-actions">
@@ -357,296 +374,371 @@
 
     <div class="container">
         <div class="page-header">
-            <h1 class="page-title">🏆 集章商城</h1>
-            <p class="page-desc">收集徽章，兑换权益，购买文创周边</p>
+            <h1 class="page-title">🏆 限定徽章活动</h1>
+            <p class="page-desc">每月限定徽章，挑战四座名山，先到先得！</p>
         </div>
 
-        <div class="my-badges">
-            <div class="badges-content">
-                <div class="badges-header">
-                    <h3>🎖️ 我的徽章收藏</h3>
-                    <div class="badges-stats">
-                        <div class="stat-item">
-                            <div class="stat-num" id="badgeCount">3</div>
-                            <div class="stat-label">已解锁</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-num" id="totalPoints">150</div>
-                            <div class="stat-label">积分</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="badges-grid" id="myBadges"></div>
+        <div class="stats-banner">
+            <div class="stat-card">
+                <div class="stat-icon">🎖️</div>
+                <div class="stat-num" id="myBadgesCount">5</div>
+                <div class="stat-label">已获得徽章</div>
             </div>
-        </div>
-
-        <div class="rewards-section">
-            <div class="rewards-header">
-                <h3>🎁 积分兑换</h3>
-                <div class="points-display">
-                    <span>当前积分：</span>
-                    <span class="points-num" id="displayPoints">150</span>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏔️</div>
+                <div class="stat-num" id="completedMountains">12</div>
+                <div class="stat-label">完成山峰</div>
             </div>
-            <div class="rewards-grid">
-                <div class="reward-card" onclick="exchangeReward('优惠券', 50)">
-                    <div class="reward-icon">🎫</div>
-                    <div class="reward-name">登山杖租借券</div>
-                    <div class="reward-cost">50 积分</div>
-                </div>
-                <div class="reward-card" onclick="exchangeReward('折扣', 80)">
-                    <div class="reward-icon">💰</div>
-                    <div class="reward-name">商城8折券</div>
-                    <div class="reward-cost">80 积分</div>
-                </div>
-                <div class="reward-card" onclick="exchangeReward('周边', 120)">
-                    <div class="reward-icon">🎒</div>
-                    <div class="reward-name">登山背包</div>
-                    <div class="reward-cost">120 积分</div>
-                </div>
-                <div class="reward-card" onclick="exchangeReward('限定', 200)">
-                    <div class="reward-icon">⭐</div>
-                    <div class="reward-name">限定徽章</div>
-                    <div class="reward-cost">200 积分</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-num" id="currentRank">128</div>
+                <div class="stat-label">当前排名</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-num" id="activeActivities">2</div>
+                <div class="stat-label">参与活动</div>
             </div>
         </div>
 
-        <div class="shop-section">
-            <div class="shop-header">
-                <h3>🛒 文创商城</h3>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <div class="shop-tabs">
-                        <div class="shop-tab active" onclick="filterProducts('all')">全部</div>
-                        <div class="shop-tab" onclick="filterProducts('徽章')">徽章</div>
-                        <div class="shop-tab" onclick="filterProducts('服饰')">服饰</div>
-                        <div class="shop-tab" onclick="filterProducts('周边')">周边</div>
-                    </div>
-                    <div class="cart-btn" id="cartBtn" data-count="0" onclick="showCart()">
-                        <i class="fas fa-shopping-cart"></i> 购物车
-                    </div>
+        <div class="current-activity">
+            <h2 class="section-title"><i class="fas fa-fire"></i> 本月限定活动</h2>
+            <div class="activity-grid" id="activityGrid"></div>
+        </div>
+
+        <div class="my-badges-section">
+            <h2 class="section-title"><i class="fas fa-medal"></i> 我的徽章收藏</h2>
+            <div class="badges-grid" id="myBadgesGrid"></div>
+        </div>
+
+        <div class="route-section">
+            <div class="route-header">
+                <h2 class="section-title"><i class="fas fa-route"></i> 活动路线</h2>
+                <div class="route-tabs">
+                    <div class="route-tab active" onclick="switchRoute('泰山')">泰山</div>
+                    <div class="route-tab" onclick="switchRoute('华山')">华山</div>
+                    <div class="route-tab" onclick="switchRoute('黄山')">黄山</div>
+                    <div class="route-tab" onclick="switchRoute('峨眉山')">峨眉山</div>
                 </div>
             </div>
-            <div class="shop-grid" id="shopGrid"></div>
+            <div class="route-map">
+                <div id="routeMap"></div>
+            </div>
+            <div class="route-info-card" id="routeInfoCard"></div>
         </div>
     </div>
 
-    <div class="modal" id="cartModal">
+    <div class="modal" id="registerModal">
         <div class="modal-content">
-            <h2 class="modal-title">🛒 购物车</h2>
-            <div id="cartList"></div>
-            <div class="cart-total">
-                <span>合计：</span>
-                <span class="cart-total-price" id="cartTotal">¥0</span>
+            <div class="modal-header">
+                <h3 class="modal-title">报名参加活动</h3>
+                <button class="modal-close" onclick="hideRegisterModal()">×</button>
             </div>
-            <div class="modal-btns">
-                <button class="btn btn-outline" onclick="hideCart()">继续购物</button>
-                <button class="btn btn-primary" onclick="checkout()">立即结算</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="successModal">
-        <div class="modal-content">
-            <div class="order-success">
-                <div class="order-success-icon">🎉</div>
-                <h3>下单成功！</h3>
-                <p>您的订单已提交，请等待发货</p>
-            </div>
-            <div class="modal-btns">
-                <button class="btn btn-primary" onclick="hideSuccess()">确定</button>
+            <div class="register-form">
+                <div class="form-group">
+                    <label>活动名称</label>
+                    <input type="text" id="activityName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>您的姓名</label>
+                    <input type="text" id="participantName" placeholder="请输入姓名">
+                </div>
+                <div class="form-group">
+                    <label>联系电话</label>
+                    <input type="tel" id="participantPhone" placeholder="请输入手机号">
+                </div>
+                <div class="form-group">
+                    <label>紧急联系人</label>
+                    <input type="text" id="emergencyContact" placeholder="请输入紧急联系人">
+                </div>
+                <div class="fee-info">
+                    <div style="font-size: 14px; margin-bottom: 5px;">报名费用</div>
+                    <div class="fee-amount">¥20.00</div>
+                    <div class="fee-note">💡 如中途退出，将退还 ¥19.01</div>
+                </div>
+                <button class="btn btn-gold" style="width: 100%; padding: 15px; font-size: 16px;" onclick="confirmRegister()">
+                    确认报名并支付
+                </button>
             </div>
         </div>
     </div>
 
     <script src="js/api-static.js"></script>
     <script>
-        const productImages = {
-            '徽章': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
-            '服饰': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
-            '周边': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400'
+        let mapInstance = null;
+        let currentRoute = '泰山';
+        let activities = [];
+        let myBadges = [];
+
+        const routeData = {
+            '泰山': {
+                start: [117.128611, 36.258611],
+                end: [117.105000, 36.265000],
+                distance: 8.5,
+                duration: '4-6小时',
+                difficulty: '中等',
+                name: '红门经典登山线'
+            },
+            '华山': {
+                start: [110.090278, 34.527278],
+                end: [110.052778, 34.541111],
+                distance: 12.0,
+                duration: '6-8小时',
+                difficulty: '困难',
+                name: '自古华山一条路'
+            },
+            '黄山': {
+                start: [118.170417, 30.134167],
+                end: [118.186389, 30.137222],
+                distance: 10.0,
+                duration: '5-7小时',
+                difficulty: '中等',
+                name: '云谷寺登山线'
+            },
+            '峨眉山': {
+                start: [103.484722, 29.525278],
+                end: [103.462500, 29.543889],
+                distance: 30.0,
+                duration: '2-3天',
+                difficulty: '困难',
+                name: '报国寺朝圣线'
+            }
         };
 
-        function getBadges() {
-            return [
-                { id: 1, name: '泰山征服者', icon: '🏔️', unlocked: true },
-                { id: 2, name: '华山勇士', icon: '🗻', unlocked: true },
-                { id: 3, name: '黄山探索者', icon: '⛰️', unlocked: true },
-                { id: 4, name: '峨眉朝圣者', icon: '🌄', unlocked: false },
-                { id: 5, name: '日出猎人', icon: '🌅', unlocked: false },
-                { id: 6, name: '百峰达人', icon: '🌟', unlocked: false }
+        function initActivities() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            
+            activities = [
+                {
+                    id: 1,
+                    mountain: '泰山',
+                    month: `${currentYear}年${currentMonth}月`,
+                    badge: '泰山征服者',
+                    totalSlots: 10000,
+                    registered: 6580,
+                    completed: 2340,
+                    deadline: `${currentYear}-${currentMonth}-28`,
+                    status: 'active',
+                    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                },
+                {
+                    id: 2,
+                    mountain: '华山',
+                    month: `${currentYear}年${currentMonth}月`,
+                    badge: '华山勇士',
+                    totalSlots: 10000,
+                    registered: 5420,
+                    completed: 1890,
+                    deadline: `${currentYear}-${currentMonth}-28`,
+                    status: 'active',
+                    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                },
+                {
+                    id: 3,
+                    mountain: '黄山',
+                    month: `${currentYear}年${currentMonth}月`,
+                    badge: '黄山探索者',
+                    totalSlots: 10000,
+                    registered: 7230,
+                    completed: 3120,
+                    deadline: `${currentYear}-${currentMonth}-28`,
+                    status: 'active',
+                    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+                },
+                {
+                    id: 4,
+                    mountain: '峨眉山',
+                    month: `${currentYear}年${currentMonth}月`,
+                    badge: '峨眉朝圣者',
+                    totalSlots: 10000,
+                    registered: 4890,
+                    completed: 1560,
+                    deadline: `${currentYear}-${currentMonth}-28`,
+                    status: 'active',
+                    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+                }
             ];
         }
 
-        function getProducts() {
-            return [
-                { id: 1, name: '泰山限定徽章', desc: '五岳之首纪念徽章', price: 29, sales: 1234, category: '徽章', badge: '热销' },
-                { id: 2, name: '华山勇士徽章', desc: '挑战险峰专属徽章', price: 35, sales: 856, category: '徽章', badge: '' },
-                { id: 3, name: '登山主题T恤', desc: '100%纯棉舒适透气', price: 89, sales: 2341, category: '服饰', badge: '热销' },
-                { id: 4, name: '登山帽', desc: '防晒透气专业帽', price: 59, sales: 1567, category: '服饰', badge: '' },
-                { id: 5, name: '登山背包', desc: '大容量轻便背包', price: 129, sales: 987, category: '周边', badge: '新品' },
-                { id: 6, name: '户外水壶', desc: '保温保冷两用', price: 49, sales: 3456, category: '周边', badge: '' },
-                { id: 7, name: '登山手杖', desc: '轻量化碳纤维', price: 199, sales: 567, category: '周边', badge: '' },
-                { id: 8, name: '纪念明信片套装', desc: '10张精美明信片', price: 19, sales: 4567, category: '周边', badge: '' }
+        function initMyBadges() {
+            myBadges = [
+                { id: 1, name: '泰山征服者', icon: '🏔️', date: '2024-01', serial: '0001234', unlocked: true },
+                { id: 2, name: '华山勇士', icon: '🗻', date: '2024-02', serial: '0002567', unlocked: true },
+                { id: 3, name: '黄山探索者', icon: '⛰️', date: '2024-03', serial: '0003890', unlocked: true },
+                { id: 4, name: '峨眉朝圣者', icon: '🌄', date: '2024-04', serial: '0004123', unlocked: true },
+                { id: 5, name: '日出猎人', icon: '🌅', date: '2024-05', serial: '0005456', unlocked: true }
             ];
         }
 
-        let cart = [];
-        let points = 150;
-
-        function renderBadges() {
-            const badges = getBadges();
-            const container = document.getElementById('myBadges');
-            container.innerHTML = badges.map(b => `
-                <div class="badge-item ${b.unlocked ? '' : 'locked'}">
-                    <div class="badge-icon">${b.icon}</div>
-                    <div class="badge-name">${b.name}</div>
-                </div>
-            `).join('');
-            
-            const unlocked = badges.filter(b => b.unlocked).length;
-            document.getElementById('badgeCount').textContent = unlocked;
-        }
-
-        function renderProducts(filter = 'all') {
-            let products = getProducts();
-            if (filter !== 'all') {
-                products = products.filter(p => p.category === filter);
-            }
-            
-            const container = document.getElementById('shopGrid');
-            container.innerHTML = products.map(p => {
-                const imgUrl = productImages[p.category] || productImages['周边'];
+        function renderActivities() {
+            const container = document.getElementById('activityGrid');
+            container.innerHTML = activities.map(activity => {
+                const progress = (activity.completed / activity.totalSlots * 100).toFixed(1);
+                const remaining = activity.totalSlots - activity.registered;
+                const isRegistered = Math.random() > 0.5; // 模拟是否已报名
+                
                 return `
-                <div class="product-card">
-                    <div class="product-img" style="background-image: url('${imgUrl}')">
-                        ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
-                    </div>
-                    <div class="product-info">
-                        <div class="product-name">${p.name}</div>
-                        <div class="product-desc">${p.desc}</div>
-                        <div class="product-footer">
-                            <div>
-                                <div class="product-price">¥${p.price}</div>
-                                <div class="product-sales">已售 ${p.sales}</div>
+                    <div class="activity-card" style="background: ${activity.color}">
+                        <div class="activity-badge">${activity.badge}</div>
+                        <div class="activity-content">
+                            <div class="activity-month">${activity.month}限定</div>
+                            <div class="activity-mountain">🏔️ ${activity.mountain}</div>
+                            <div class="activity-info">
+                                <div class="info-item">
+                                    <div class="info-label">报名人数</div>
+                                    <div class="info-value">${activity.registered}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">完成人数</div>
+                                    <div class="info-value">${activity.completed}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">剩余名额</div>
+                                    <div class="info-value">${remaining}</div>
+                                </div>
                             </div>
-                            <button class="add-cart-btn" onclick="addToCart(${p.id})">
-                                <i class="fas fa-plus"></i> 加入购物车
+                            <div class="activity-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="progress-text">已发放 ${progress}% (${activity.completed}/${activity.totalSlots})</div>
+                            </div>
+                            <button class="activity-btn ${isRegistered ? 'registered' : ''}" onclick="showRegisterModal(${activity.id})">
+                                ${isRegistered ? '已报名，查看路线' : '立即报名 ¥20'}
                             </button>
                         </div>
                     </div>
+                `;
+            }).join('');
+        }
+
+        function renderMyBadges() {
+            const container = document.getElementById('myBadgesGrid');
+            container.innerHTML = myBadges.map(badge => `
+                <div class="badge-card ${badge.unlocked ? 'unlocked' : ''}">
+                    ${badge.unlocked ? `<div class="badge-serial">#${badge.serial}</div>` : ''}
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                    <div class="badge-date">${badge.unlocked ? badge.date : '未解锁'}</div>
                 </div>
-            `}).join('');
+            `).join('');
         }
 
-        function filterProducts(category) {
-            document.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            renderProducts(category);
-        }
-
-        function addToCart(productId) {
-            const products = getProducts();
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
+        function initMap() {
+            mapInstance = new AMap.Map('routeMap', {
+                zoom: 13,
+                center: routeData[currentRoute].start,
+                mapStyle: 'amap://styles/whitesmoke'
+            });
             
-            const existing = cart.find(item => item.id === productId);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
+            updateRoute();
+        }
+
+        function updateRoute() {
+            const route = routeData[currentRoute];
             
-            updateCartBtn();
-            alert(`已添加 ${product.name} 到购物车`);
-        }
-
-        function updateCartBtn() {
-            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-            const cartBtn = document.getElementById('cartBtn');
-            cartBtn.setAttribute('data-count', totalItems);
-            cartBtn.classList.toggle('has-items', totalItems > 0);
-        }
-
-        function showCart() {
-            renderCart();
-            document.getElementById('cartModal').classList.add('show');
-        }
-
-        function hideCart() {
-            document.getElementById('cartModal').classList.remove('show');
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cartList');
+            // 清除之前的覆盖物
+            mapInstance.clearMap();
             
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 40px;">购物车是空的</p>';
-                document.getElementById('cartTotal').textContent = '¥0';
-                return;
-            }
+            // 添加起点标记
+            const startMarker = new AMap.Marker({
+                position: route.start,
+                content: '<div style="background: #4CAF50; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; white-space: nowrap;">🚩 起点</div>',
+                offset: new AMap.Pixel(-30, -15)
+            });
             
-            container.innerHTML = cart.map(item => {
-                const imgUrl = productImages[item.category] || productImages['周边'];
-                return `
-                <div class="cart-item">
-                    <div class="cart-item-img" style="background-image: url('${imgUrl}')"></div>
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">¥${item.price}</div>
-                        <div class="cart-item-qty">
-                            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
-                            <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
-                        </div>
-                    </div>
+            // 添加终点标记
+            const endMarker = new AMap.Marker({
+                position: route.end,
+                content: '<div style="background: #FF6B35; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; white-space: nowrap;">🏁 终点</div>',
+                offset: new AMap.Pixel(-30, -15)
+            });
+            
+            mapInstance.add([startMarker, endMarker]);
+            
+            // 绘制路线（简化版，实际应该使用步行导航API）
+            const polyline = new AMap.Polyline({
+                path: [route.start, route.end],
+                strokeColor: '#4CAF50',
+                strokeWeight: 4,
+                strokeOpacity: 0.8,
+                strokeStyle: 'dashed'
+            });
+            mapInstance.add(polyline);
+            
+            // 调整视野
+            mapInstance.setFitView([startMarker, endMarker, polyline]);
+            
+            // 更新路线信息卡片
+            document.getElementById('routeInfoCard').innerHTML = `
+                <div class="route-stat">
+                    <div class="route-stat-icon">📍</div>
+                    <div class="route-stat-value">${route.name}</div>
+                    <div class="route-stat-label">路线名称</div>
                 </div>
-            `}).join('');
-            
-            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-            document.getElementById('cartTotal').textContent = '¥' + total;
+                <div class="route-stat">
+                    <div class="route-stat-icon">📏</div>
+                    <div class="route-stat-value">${route.distance}km</div>
+                    <div class="route-stat-label">总距离</div>
+                </div>
+                <div class="route-stat">
+                    <div class="route-stat-icon">⏱️</div>
+                    <div class="route-stat-value">${route.duration}</div>
+                    <div class="route-stat-label">预计时间</div>
+                </div>
+                <div class="route-stat">
+                    <div class="route-stat-icon">💪</div>
+                    <div class="route-stat-value">${route.difficulty}</div>
+                    <div class="route-stat-label">难度等级</div>
+                </div>
+            `;
         }
 
-        function changeQty(productId, delta) {
-            const item = cart.find(i => i.id === productId);
-            if (!item) return;
+        function switchRoute(mountain) {
+            currentRoute = mountain;
             
-            item.qty += delta;
-            if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== productId);
-            }
-            
-            updateCartBtn();
-            renderCart();
-        }
-
-        function checkout() {
-            if (cart.length === 0) {
-                alert('购物车是空的');
-                return;
-            }
-            
-            hideCart();
-            document.getElementById('successModal').classList.add('show');
-            cart = [];
-            updateCartBtn();
-        }
-
-        function hideSuccess() {
-            document.getElementById('successModal').classList.remove('show');
-        }
-
-        function exchangeReward(name, cost) {
-            if (points >= cost) {
-                if (confirm(`确定花费 ${cost} 积分兑换 ${name} 吗？`)) {
-                    points -= cost;
-                    document.getElementById('totalPoints').textContent = points;
-                    document.getElementById('displayPoints').textContent = points;
-                    alert('兑换成功！');
+            // 更新标签样式
+            document.querySelectorAll('.route-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === mountain) {
+                    tab.classList.add('active');
                 }
-            } else {
-                alert('积分不足，快去登山打卡收集徽章吧！');
+            });
+            
+            // 更新地图中心
+            mapInstance.setCenter(routeData[mountain].start);
+            mapInstance.setZoom(13);
+            
+            updateRoute();
+        }
+
+        function showRegisterModal(activityId) {
+            const activity = activities.find(a => a.id === activityId);
+            if (!activity) return;
+            
+            document.getElementById('activityName').value = `${activity.month} - ${activity.mountain}限定徽章活动`;
+            document.getElementById('registerModal').classList.add('show');
+        }
+
+        function hideRegisterModal() {
+            document.getElementById('registerModal').classList.remove('show');
+        }
+
+        function confirmRegister() {
+            const name = document.getElementById('participantName').value;
+            const phone = document.getElementById('participantPhone').value;
+            const emergency = document.getElementById('emergencyContact').value;
+            
+            if (!name || !phone || !emergency) {
+                alert('请填写完整信息');
+                return;
             }
+            
+            // 模拟支付成功
+            alert('报名成功！请按时完成登山活动以获得限定徽章。');
+            hideRegisterModal();
         }
 
         function checkLogin() {
@@ -666,9 +758,17 @@
             location.reload();
         }
 
+        // 初始化
         checkLogin();
-        renderBadges();
-        renderProducts();
+        initActivities();
+        initMyBadges();
+        renderActivities();
+        renderMyBadges();
+        
+        // 等待地图API加载完成
+        setTimeout(() => {
+            initMap();
+        }, 500);
     </script>
 </body>
 </html>

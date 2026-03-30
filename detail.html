@@ -134,7 +134,7 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .route-item:hover { background: #e8f5e9; }
+        .route-item:hover { background: #e8f5e9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .route-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .route-name { font-size: 16px; font-weight: 600; }
         .route-diff { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
@@ -142,11 +142,128 @@
         .diff-medium { background: #fff3e0; color: #e65100; }
         .diff-hard { background: #ffebee; color: #c62828; }
         .route-info { display: flex; gap: 20px; color: var(--text-gray); font-size: 13px; }
+        .route-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 0;
+        }
+        .route-item.expanded .route-detail {
+            max-height: 600px;
+            margin-top: 15px;
+        }
+        .route-detail-content {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+        }
+        .route-detail-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .route-map-container {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .route-map-container iframe,
+        .route-map-container div {
+            width: 100%;
+            height: 100%;
+        }
+        .route-text-content {
+            flex: 1;
+        }
+        .route-detail-content h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: var(--primary);
+        }
+        .route-detail-content p {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+        .route-detail-content ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+        .route-detail-content li {
+            margin-bottom: 5px;
+        }
+        .route-expand-icon {
+            transition: transform 0.3s;
+        }
+        .route-item.expanded .route-expand-icon {
+            transform: rotate(180deg);
+        }
 
         .tips-list { list-style: none; }
         .tips-list li { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; gap: 12px; }
         .tips-list li:last-child { border-bottom: none; }
         .tips-list i { color: var(--primary); margin-top: 3px; }
+
+        .custom-route-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-gray);
+        }
+        .custom-route-empty i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        .custom-route-empty p {
+            margin-bottom: 20px;
+        }
+        .custom-route-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .custom-route-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .custom-route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .custom-route-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .custom-route-author {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        .custom-route-desc {
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .custom-route-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        .custom-route-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         .comment-item {
             padding: 20px 0;
@@ -257,18 +374,19 @@
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=7f15390a1a429eaa11dc14de4b750a7b"></script>
 </head>
 <body>
     <nav class="navbar">
         <a href="index.html" class="logo">
             <span>⛰️</span>
-            <span>MemSavor</span>
+            <span>PorSavor</span>
         </a>
         <div class="nav-menu">
             <a href="index.html">首页</a>
             <a href="rent.html">共享登山杖</a>
-            <a href="partner.html">登山搭子</a>
-            <a href="badge.html">集章商城</a>
+            <a href="partner.html">登山空间</a>
+            <a href="badge.html">限定徽章</a>
             <a href="spots.html">山峰列表</a>
         </div>
         <div class="user-info">
@@ -319,6 +437,17 @@
                 <div class="content-card">
                     <h3 class="card-title"><i class="fas fa-route"></i> 推荐路线</h3>
                     <div id="routeList"></div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title"><i class="fas fa-user-edit"></i> 游客自研路线</h3>
+                    <div id="customRouteList">
+                        <div class="custom-route-empty">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>暂无游客自研路线</p>
+                            <button class="btn btn-outline" onclick="showAddCustomRoute()"><i class="fas fa-plus"></i> 我要发布路线</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="content-card">
@@ -381,30 +510,333 @@
             '黄山': 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920',
             '峨眉山': 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=1920',
             '武夷山': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920',
-            '张家界': 'https://images.unsplash.com/photo-1518173946687-a4c036bc3c5a?w=1920'
+            '张家界': 'https://images.unsplash.com/photo-1518173946687-a4c036bc3c5a?w=1920',
+            '庐山': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920',
+            '衡山': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920',
+            '嵩山': 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920',
+            '玉龙雪山': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920',
+            '四姑娘山': 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=1920',
+            '三清山': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920'
         };
 
         const mountainRoutes = {
             '泰山': [
-                { name: '红门经典线', difficulty: '中等', duration: '4-6小时', distance: '8.5km' },
-                { name: '天外村索道线', difficulty: '简单', duration: '2-3小时', distance: '3km' },
-                { name: '桃花峪登山线', difficulty: '中等', duration: '3-4小时', distance: '6km' }
+                {
+                    name: '红门经典线',
+                    difficulty: '中等',
+                    duration: '4-6小时',
+                    distance: '8.5km',
+                    description: '泰山最经典的登山路线，沿途经过岱庙、红门、中天门、十八盘至南天门，最后到达玉皇顶。',
+                    highlights: ['途经孔子登临处', '十八盘挑战极限', '南天门观日出', '玉皇顶俯瞰群山'],
+                    tips: '建议凌晨2-3点出发，可在山顶观看日出',
+                    coordinates: { start: [117.0208, 36.2596], end: [117.1072, 36.2016], waypoints: [[117.0540, 36.2380], [117.0830, 36.2200]] }
+                },
+                {
+                    name: '天外村索道线',
+                    difficulty: '简单',
+                    duration: '2-3小时',
+                    distance: '3km',
+                    description: '适合老人和儿童的轻松路线，乘坐索道直达中天门，再步行至山顶。',
+                    highlights: ['省时省力', '适合全家出游', '可欣赏云海美景'],
+                    tips: '索道运营时间7:00-17:00，建议提前购票',
+                    coordinates: { start: [117.0808, 36.1722], end: [117.1072, 36.2016] }
+                },
+                {
+                    name: '桃花峪登山线',
+                    difficulty: '中等',
+                    duration: '3-4小时',
+                    distance: '6km',
+                    description: '春季赏花最佳路线，沿途桃花盛开，风景优美。',
+                    highlights: ['春季桃花盛开', '人少景美', '自然风光秀丽'],
+                    tips: '最佳游览时间为3-4月桃花盛开季节',
+                    coordinates: { start: [117.0380, 36.1380], end: [117.1072, 36.2016] }
+                }
             ],
             '华山': [
-                { name: '北峰索道线', difficulty: '中等', duration: '4-5小时', distance: '10km' },
-                { name: '西峰索道线', difficulty: '困难', duration: '5-6小时', distance: '12km' },
-                { name: '自古华山一条路', difficulty: '困难', duration: '6-8小时', distance: '15km' }
+                {
+                    name: '北峰索道线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '10km',
+                    description: '从北峰索道上山，依次游览北峰、苍龙岭、金锁关，最后到达西峰。',
+                    highlights: ['苍龙岭险道', '金锁关祈福', '西峰观日落'],
+                    tips: '建议穿防滑鞋，带足水和食物',
+                    coordinates: { start: [110.0925, 34.5577], end: [110.0630, 34.4545], waypoints: [[110.0810, 34.5100], [110.0700, 34.4800]] }
+                },
+                {
+                    name: '西峰索道线',
+                    difficulty: '困难',
+                    duration: '5-6小时',
+                    distance: '12km',
+                    description: '从西峰索道上山，游览西峰、南峰、东峰，最后从北峰下山。',
+                    highlights: ['长空栈道挑战', '南峰最高点', '东峰观日出'],
+                    tips: '体力要求较高，建议两天行程',
+                    coordinates: { start: [110.0630, 34.4545], end: [110.0925, 34.5577] }
+                },
+                {
+                    name: '自古华山一条路',
+                    difficulty: '困难',
+                    duration: '6-8小时',
+                    distance: '15km',
+                    description: '传统登山路线，全程徒步，体验华山险峻之美。',
+                    highlights: ['千尺幢', '百尺峡', '老君犁沟', '苍龙岭'],
+                    tips: '需要较强体力，建议凌晨出发',
+                    coordinates: { start: [110.1350, 34.5680], end: [110.0630, 34.4545] }
+                }
             ],
             '黄山': [
-                { name: '云谷寺索道线', difficulty: '中等', duration: '4-5小时', distance: '8km' },
-                { name: '玉屏楼索道线', difficulty: '中等', duration: '3-4小时', distance: '6km' },
-                { name: '西海大峡谷环线', difficulty: '困难', duration: '5-6小时', distance: '10km' }
+                {
+                    name: '云谷寺索道线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '8km',
+                    description: '从云谷寺乘索道上山，游览始信峰、北海景区，最后到达光明顶。',
+                    highlights: ['始信峰奇松', '北海云海', '光明顶观景'],
+                    tips: '建议住宿山顶，次日观日出',
+                    coordinates: { start: [118.1560, 30.1280], end: [118.1590, 30.1130], waypoints: [[118.1530, 30.1200], [118.1570, 30.1150]] }
+                },
+                {
+                    name: '玉屏楼索道线',
+                    difficulty: '中等',
+                    duration: '3-4小时',
+                    distance: '6km',
+                    description: '从玉屏楼索道上山，近距离观赏迎客松和天都峰。',
+                    highlights: ['迎客松', '天都峰', '莲花峰'],
+                    tips: '天都峰和莲花峰轮流开放',
+                    coordinates: { start: [118.1610, 30.1240], end: [118.1500, 30.1180] }
+                },
+                {
+                    name: '西海大峡谷环线',
+                    difficulty: '困难',
+                    duration: '5-6小时',
+                    distance: '10km',
+                    description: '黄山最壮观的峡谷路线，沿途奇峰怪石，云海翻腾。',
+                    highlights: ['西海大峡谷', '排云亭', '飞来石', '光明顶'],
+                    tips: '需要较好体力，建议携带登山杖',
+                    coordinates: { start: [118.1500, 30.1100], end: [118.1590, 30.1130], waypoints: [[118.1450, 30.1050], [118.1550, 30.1080]] }
+                }
+            ],
+            '峨眉山': [
+                {
+                    name: '金顶朝圣线',
+                    difficulty: '中等',
+                    duration: '6-8小时',
+                    distance: '12km',
+                    description: '从报国寺出发，途经清音阁、万年寺，乘索道至金顶。',
+                    highlights: ['清音阁听泉', '万年寺祈福', '金顶观云海', '十方普贤圣像'],
+                    tips: '建议安排两天行程，可在金顶住宿',
+                    coordinates: { start: [103.4800, 29.5650], end: [103.3510, 29.5250], waypoints: [[103.4600, 29.5500], [103.4000, 29.5300]] }
+                },
+                {
+                    name: '万年寺索道线',
+                    difficulty: '简单',
+                    duration: '3-4小时',
+                    distance: '5km',
+                    description: '适合休闲游，乘索道直达万年寺，再步行至金顶。',
+                    highlights: ['万年寺古刹', '白龙洞', '金顶日出'],
+                    tips: '冬季注意保暖，山上气温较低',
+                    coordinates: { start: [103.4500, 29.5550], end: [103.3510, 29.5250] }
+                }
+            ],
+            '武夷山': [
+                {
+                    name: '天游峰登高线',
+                    difficulty: '中等',
+                    duration: '3-4小时',
+                    distance: '6km',
+                    description: '登天游峰俯瞰九曲溪，是武夷山最佳观景点。',
+                    highlights: ['天游峰观景', '九曲溪全景', '武夷宫'],
+                    tips: '建议清晨出发，避开人流高峰',
+                    coordinates: { start: [117.9980, 27.7180], end: [117.9860, 27.7100] }
+                },
+                {
+                    name: '九曲溪竹筏线',
+                    difficulty: '简单',
+                    duration: '2小时',
+                    distance: '9.5km',
+                    description: '乘坐竹筏漂流九曲溪，欣赏两岸奇峰怪石。',
+                    highlights: ['九曲溪漂流', '大王峰', '玉女峰', '天游峰远眺'],
+                    tips: '竹筏需要提前预约，建议上午乘坐',
+                    coordinates: { start: [117.9950, 27.7200], end: [117.9750, 27.6800], waypoints: [[117.9900, 27.7100], [117.9850, 27.7000]] }
+                }
+            ],
+            '张家界': [
+                {
+                    name: '袁家界探秘线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '8km',
+                    description: '游览袁家界景区，欣赏《阿凡达》取景地的奇峰异石。',
+                    highlights: ['乾坤柱', '迷魂台', '天下第一桥', '百元大钞取景地'],
+                    tips: '建议乘百龙天梯上山，省时省力',
+                    coordinates: { start: [110.4460, 29.1180], end: [110.4800, 29.0850], waypoints: [[110.4550, 29.1000], [110.4700, 29.0900]] }
+                },
+                {
+                    name: '天子山环线',
+                    difficulty: '困难',
+                    duration: '6-7小时',
+                    distance: '12km',
+                    description: '游览天子山景区，观赏云海和石林奇观。',
+                    highlights: ['贺龙公园', '御笔峰', '仙女散花', '天子阁'],
+                    tips: '建议乘索道上山，步行下山',
+                    coordinates: { start: [110.4100, 29.1300], end: [110.4200, 29.0900] }
+                }
+            ],
+            '庐山': [
+                {
+                    name: '含鄱口观日线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '8km',
+                    description: '从含鄱口出发，游览五老峰、三叠泉，欣赏庐山壮丽景色。',
+                    highlights: ['含鄱口日出', '五老峰', '三叠泉瀑布', '植物园'],
+                    tips: '三叠泉需要下山再上山，体力消耗较大',
+                    coordinates: { start: [115.9700, 29.5700], end: [115.9800, 29.5300], waypoints: [[115.9750, 29.5500]] }
+                },
+                {
+                    name: '牯岭镇休闲线',
+                    difficulty: '简单',
+                    duration: '3-4小时',
+                    distance: '5km',
+                    description: '游览牯岭镇及周边景点，感受庐山人文风情。',
+                    highlights: ['牯岭街', '花径', '锦绣谷', '仙人洞'],
+                    tips: '适合休闲游，可品尝当地特色美食',
+                    coordinates: { start: [115.9900, 29.5700], end: [116.0000, 29.5600] }
+                }
+            ],
+            '衡山': [
+                {
+                    name: '南岳祈福线',
+                    difficulty: '简单',
+                    duration: '4-5小时',
+                    distance: '7km',
+                    description: '从南岳大庙出发，乘索道至南天门，步行至祝融峰。',
+                    highlights: ['南岳大庙', '南天门', '祝融峰', '祝融殿'],
+                    tips: '香火鼎盛，可在此祈福许愿',
+                    coordinates: { start: [112.6100, 27.3200], end: [112.6200, 27.2950] }
+                },
+                {
+                    name: '全程徒步线',
+                    difficulty: '中等',
+                    duration: '6-7小时',
+                    distance: '12km',
+                    description: '全程徒步登山，体验南岳衡山的秀美风光。',
+                    highlights: ['胜利坊', '华严湖', '忠烈祠', '半山亭'],
+                    tips: '沿途有补给点，建议轻装上阵',
+                    coordinates: { start: [112.6000, 27.3300], end: [112.6200, 27.2950], waypoints: [[112.6100, 27.3150], [112.6150, 27.3050]] }
+                }
+            ],
+            '嵩山': [
+                {
+                    name: '少林寺朝圣线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '6km',
+                    description: '参观少林寺、塔林，登三皇寨，感受禅武文化。',
+                    highlights: ['少林寺', '塔林', '达摩洞', '三皇寨'],
+                    tips: '可观看少林功夫表演，建议提前查询时间',
+                    coordinates: { start: [112.9200, 34.5100], end: [112.9500, 34.4800], waypoints: [[112.9300, 34.5000]] }
+                },
+                {
+                    name: '嵩阳书院线',
+                    difficulty: '简单',
+                    duration: '2-3小时',
+                    distance: '3km',
+                    description: '游览中国古代四大书院之一的嵩阳书院。',
+                    highlights: ['嵩阳书院', '将军柏', '大唐碑'],
+                    tips: '适合文化爱好者，可了解儒家文化',
+                    coordinates: { start: [112.9100, 34.4900], end: [112.9200, 34.4850] }
+                }
+            ],
+            '玉龙雪山': [
+                {
+                    name: '冰川公园线',
+                    difficulty: '困难',
+                    duration: '4-5小时',
+                    distance: '5km',
+                    description: '乘大索道直达冰川公园，近距离接触雪山冰川。',
+                    highlights: ['冰川公园', '4680米观景台', '雪景', '蓝月谷'],
+                    tips: '高原反应风险，建议提前服用红景天',
+                    coordinates: { start: [100.2700, 27.1100], end: [100.2500, 27.0900] }
+                },
+                {
+                    name: '云杉坪线',
+                    difficulty: '中等',
+                    duration: '3-4小时',
+                    distance: '4km',
+                    description: '乘小索道至云杉坪，欣赏原始森林和雪山远景。',
+                    highlights: ['云杉坪', '原始森林', '雪山远景', '牦牛坪'],
+                    tips: '相对轻松，适合大多数游客',
+                    coordinates: { start: [100.2600, 27.1200], end: [100.2500, 27.1000] }
+                }
+            ],
+            '四姑娘山': [
+                {
+                    name: '双桥沟线',
+                    difficulty: '简单',
+                    duration: '4-5小时',
+                    distance: '6km',
+                    description: '乘观光车游览双桥沟，欣赏雪山、草甸、森林美景。',
+                    highlights: ['阴阳谷', '五色山', '日月宝镜', '人参果坪'],
+                    tips: '最轻松的游览方式，适合初次到访',
+                    coordinates: { start: [102.8200, 31.0500], end: [102.8800, 31.0300] }
+                },
+                {
+                    name: '长坪沟徒步线',
+                    difficulty: '困难',
+                    duration: '7-8小时',
+                    distance: '15km',
+                    description: '徒步穿越长坪沟，近距离观赏四姑娘山。',
+                    highlights: ['喇嘛寺', '枯树滩', '木骡子', '四姑娘山主峰'],
+                    tips: '需要较好体力，建议请向导',
+                    coordinates: { start: [102.8500, 31.0500], end: [102.9100, 31.0200], waypoints: [[102.8700, 31.0400]] }
+                }
+            ],
+            '三清山': [
+                {
+                    name: '西海岸栈道线',
+                    difficulty: '中等',
+                    duration: '4-5小时',
+                    distance: '8km',
+                    description: '沿西海岸栈道游览，欣赏奇峰怪石和云海。',
+                    highlights: ['西海岸栈道', '阳光海岸', '巨蟒出山', '东方女神'],
+                    tips: '栈道平坦，适合大多数游客',
+                    coordinates: { start: [117.9500, 28.9200], end: [117.9800, 28.9100], waypoints: [[117.9600, 28.9150], [117.9700, 28.9120]] }
+                },
+                {
+                    name: '南清园环线',
+                    difficulty: '中等',
+                    duration: '3-4小时',
+                    distance: '5km',
+                    description: '游览南清园景区，观赏三清山精华景点。',
+                    highlights: ['南清园', '玉女开怀', '一线天', '万寿园'],
+                    tips: '建议乘索道上山，节省体力',
+                    coordinates: { start: [117.9700, 28.9000], end: [117.9850, 28.9100] }
+                }
             ]
         };
 
         const defaultRoutes = [
-            { name: '经典登山线', difficulty: '中等', duration: '4-5小时', distance: '8km' },
-            { name: '索道观光线', difficulty: '简单', duration: '2-3小时', distance: '3km' }
+            {
+                name: '经典登山线',
+                difficulty: '中等',
+                duration: '4-5小时',
+                distance: '8km',
+                description: '最受欢迎的登山路线，沿途风景优美，适合大多数游客。',
+                highlights: ['风景优美', '难度适中', '设施完善'],
+                tips: '建议携带足够的水和食物',
+                coordinates: { start: [116.4000, 39.9000], end: [116.4300, 39.9200] }
+            },
+            {
+                name: '索道观光线',
+                difficulty: '简单',
+                duration: '2-3小时',
+                distance: '3km',
+                description: '轻松休闲的观光路线，适合老人和儿童。',
+                highlights: ['省时省力', '适合全家', '观景效果好'],
+                tips: '索道可能需要排队，建议错峰出行',
+                coordinates: { start: [116.4100, 39.9050], end: [116.4300, 39.9200] }
+            }
         ];
 
         const mountainTips = {
@@ -421,6 +853,76 @@
                 { icon: 'fa-shoe-prints', text: '穿防滑登山鞋，部分路段较陡' },
                 { icon: 'fa-moon', text: '夜爬华山看日出是经典体验' },
                 { icon: 'fa-users', text: '建议结伴同行，互相照应' }
+            ],
+            '黄山': [
+                { icon: 'fa-cloud', text: '云海最佳观赏时间为雨后初晴' },
+                { icon: 'fa-camera', text: '迎客松、光明顶是最佳拍照点' },
+                { icon: 'fa-bed', text: '建议住宿山顶，方便观日出' },
+                { icon: 'fa-umbrella', text: '山区天气多变，请携带雨具' },
+                { icon: 'fa-hiking', text: '西海大峡谷需要较好体力，建议携带登山杖' }
+            ],
+            '峨眉山': [
+                { icon: 'fa-monkey', text: '山上有猴群，请勿喂食和挑衅' },
+                { icon: 'fa-thermometer-half', text: '山顶气温低，请携带保暖衣物' },
+                { icon: 'fa-pray', text: '寺庙内请保持安静，尊重佛教文化' },
+                { icon: 'fa-clock', text: '金顶日出约在6点左右，请提前到达' },
+                { icon: 'fa-bed', text: '可在金顶或万年寺住宿' }
+            ],
+            '武夷山': [
+                { icon: 'fa-ship', text: '九曲溪竹筏需提前预约' },
+                { icon: 'fa-sun', text: '夏季紫外线强，请做好防晒' },
+                { icon: 'fa-leaf', text: '大红袍景区可品尝正宗岩茶' },
+                { icon: 'fa-hiking', text: '天游峰较陡，建议穿防滑鞋' },
+                { icon: 'fa-clock', text: '建议安排2天时间游览' }
+            ],
+            '张家界': [
+                { icon: 'fa-elevator', text: '百龙天梯可节省大量体力' },
+                { icon: 'fa-glass-martini', text: '玻璃桥需要提前购票，恐高者慎入' },
+                { icon: 'fa-cloud', text: '雨后云雾缭绕，景色最美' },
+                { icon: 'fa-users', text: '节假日人多，建议错峰出行' },
+                { icon: 'fa-map', text: '景区较大，建议提前规划路线' }
+            ],
+            '庐山': [
+                { icon: 'fa-cloud', text: '庐山云雾多，带好雨具' },
+                { icon: 'fa-water', text: '三叠泉瀑布需要下山再上山，体力消耗大' },
+                { icon: 'fa-camera', text: '含鄱口是观日出的最佳地点' },
+                { icon: 'fa-bed', text: '牯岭镇住宿方便，建议住一晚' },
+                { icon: 'fa-film', text: '电影《庐山恋》在庐山影院常年放映' }
+            ],
+            '衡山': [
+                { icon: 'fa-pray', text: '南岳大庙香火鼎盛，可祈福许愿' },
+                { icon: 'fa-calendar', text: '农历八月香火最旺，人流量大' },
+                { icon: 'fa-thermometer-half', text: '山顶气温较低，注意保暖' },
+                { icon: 'fa-utensils', text: '可品尝南岳素斋，别有风味' },
+                { icon: 'fa-hiking', text: '全程徒步约需6小时，量力而行' }
+            ],
+            '嵩山': [
+                { icon: 'fa-fist-raised', text: '少林寺可观看功夫表演' },
+                { icon: 'fa-book', text: '嵩阳书院是古代四大书院之一' },
+                { icon: 'fa-clock', text: '建议安排一天时间游览少林寺' },
+                { icon: 'fa-shoe-prints', text: '三皇寨需要一定体力，穿好登山鞋' },
+                { icon: 'fa-camera', text: '塔林是拍照的好地方' }
+            ],
+            '玉龙雪山': [
+                { icon: 'fa-lungs', text: '高原反应风险，提前服用红景天' },
+                { icon: 'fa-thermometer-half', text: '山顶气温极低，租借羽绒服' },
+                { icon: 'fa-sun', text: '紫外线强烈，做好防晒' },
+                { icon: 'fa-ticket-alt', text: '大索道票需提前预约' },
+                { icon: 'fa-water', text: '蓝月谷湖水湛蓝，拍照绝美' }
+            ],
+            '四姑娘山': [
+                { icon: 'fa-lungs', text: '海拔较高，注意高原反应' },
+                { icon: 'fa-hiking', text: '长坪沟徒步需要较好体力' },
+                { icon: 'fa-camera', text: '双桥沟观光车游览，轻松惬意' },
+                { icon: 'fa-bed', text: '日隆镇住宿方便，可住一晚' },
+                { icon: 'fa-map', text: '三条沟各具特色，建议都体验' }
+            ],
+            '三清山': [
+                { icon: 'fa-cloud', text: '云海最佳观赏时间为雨后初晴' },
+                { icon: 'fa-hiking', text: '西海岸栈道平坦，适合大多数人' },
+                { icon: 'fa-camera', text: '巨蟒出山、东方女神是必拍景点' },
+                { icon: 'fa-umbrella', text: '山区天气多变，带好雨具' },
+                { icon: 'fa-bed', text: '山顶有住宿，可看日出日落' }
             ]
         };
 
@@ -479,9 +981,11 @@
             loadGallery(mountain.name, imgUrl);
             loadRoutes(mountain.name);
             loadTips(mountain.name);
+            loadCustomRoutes(mountain.name);
             loadComments(mountain.id);
             loadWeather();
             loadNearby(mountains, mountain);
+            localStorage.setItem('currentMountainName', mountain.name);
         }
 
         function loadGallery(name, mainImg) {
@@ -502,28 +1006,169 @@
         function loadRoutes(name) {
             const routes = mountainRoutes[name] || defaultRoutes;
             const container = document.getElementById('routeList');
-            container.innerHTML = routes.map(r => {
+            container.innerHTML = routes.map((r, index) => {
                 const diffClass = r.difficulty === '简单' ? 'diff-easy' : r.difficulty === '中等' ? 'diff-medium' : 'diff-hard';
                 return `
-                <div class="route-item">
+                <div class="route-item" onclick="toggleRoute(this)">
                     <div class="route-header">
                         <span class="route-name">${r.name}</span>
-                        <span class="route-diff ${diffClass}">${r.difficulty}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="route-diff ${diffClass}">${r.difficulty}</span>
+                            <i class="fas fa-chevron-down route-expand-icon"></i>
+                        </div>
                     </div>
                     <div class="route-info">
                         <span><i class="fas fa-clock"></i> ${r.duration}</span>
                         <span><i class="fas fa-road"></i> ${r.distance}</span>
                     </div>
+                    <div class="route-detail">
+                        <div class="route-detail-content">
+                            <div class="route-detail-inner">
+                                <div class="route-map-container" id="routeMap_${index}"></div>
+                                <div class="route-text-content">
+                                    <h4><i class="fas fa-info-circle"></i> 路线介绍</h4>
+                                    <p>${r.description || '暂无详细介绍'}</p>
+                                    ${r.highlights ? `
+                                    <h4><i class="fas fa-star"></i> 亮点景点</h4>
+                                    <ul>
+                                        ${r.highlights.map(h => `<li>${h}</li>`).join('')}
+                                    </ul>
+                                    ` : ''}
+                                    ${r.tips ? `
+                                    <h4><i class="fas fa-lightbulb"></i> 登山贴士</h4>
+                                    <p>${r.tips}</p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `}).join('');
+        }
+
+        function toggleRoute(element) {
+            element.classList.toggle('expanded');
+            const mapContainer = element.querySelector('.route-map-container');
+            if (element.classList.contains('expanded') && mapContainer && !mapContainer.dataset.initialized) {
+                mapContainer.dataset.initialized = 'true';
+                const routeIndex = Array.from(element.parentElement.children).indexOf(element);
+                const mountainName = localStorage.getItem('currentMountainName') || '泰山';
+                const routes = mountainRoutes[mountainName] || defaultRoutes;
+                const route = routes[routeIndex];
+                if (route && route.coordinates) {
+                    initRouteMap(mapContainer.id, route.coordinates);
+                }
+            }
+        }
+
+        function initRouteMap(containerId, coordinates) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const map = new AMap.Map(containerId, {
+                zoom: 13,
+                center: coordinates.start,
+                mapStyle: 'amap://styles/whitesmoke'
+            });
+
+            const startMarker = new AMap.Marker({
+                position: coordinates.start,
+                content: '<div style="font-size:16px;">🚩</div>',
+                offset: new AMap.Pixel(-8, -8)
+            });
+
+            const endMarker = new AMap.Marker({
+                position: coordinates.end,
+                content: '<div style="font-size:16px;">🏁</div>',
+                offset: new AMap.Pixel(-8, -8)
+            });
+
+            map.add([startMarker, endMarker]);
+
+            if (coordinates.waypoints && coordinates.waypoints.length > 0) {
+                const polyline = new AMap.Polyline({
+                    path: [coordinates.start, ...coordinates.waypoints, coordinates.end],
+                    strokeColor: '#4CAF50',
+                    strokeWeight: 4,
+                    strokeOpacity: 0.8
+                });
+                map.add(polyline);
+                map.setFitView([startMarker, endMarker, polyline]);
+            } else {
+                const polyline = new AMap.Polyline({
+                    path: [coordinates.start, coordinates.end],
+                    strokeColor: '#4CAF50',
+                    strokeWeight: 4,
+                    strokeOpacity: 0.8,
+                    strokeStyle: 'dashed'
+                });
+                map.add(polyline);
+                map.setFitView([startMarker, endMarker]);
+            }
         }
 
         function loadTips(name) {
             const tips = mountainTips[name] || defaultTips;
             const container = document.getElementById('tipsList');
-            container.innerHTML = tips.map(t => 
+            container.innerHTML = tips.map(t =>
                 `<li><i class="fas ${t.icon}"></i> ${t.text}</li>`
             ).join('');
+        }
+
+        function loadCustomRoutes(mountainName) {
+            const customRoutes = JSON.parse(localStorage.getItem('customRoutes_' + mountainName) || '[]');
+            const container = document.getElementById('customRouteList');
+
+            if (customRoutes.length === 0) {
+                container.innerHTML = `
+                    <div class="custom-route-empty">
+                        <i class="fas fa-plus-circle"></i>
+                        <p>暂无游客自研路线</p>
+                        <button class="btn btn-outline" onclick="showAddCustomRoute()"><i class="fas fa-plus"></i> 我要发布路线</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = customRoutes.map(r => `
+                <div class="custom-route-item">
+                    <div class="custom-route-header">
+                        <span class="custom-route-name">${r.name}</span>
+                        <span class="custom-route-author">by ${r.author}</span>
+                    </div>
+                    <p class="custom-route-desc">${r.description}</p>
+                    <div class="custom-route-meta">
+                        <span><i class="fas fa-clock"></i> ${r.duration}</span>
+                        <span><i class="fas fa-road"></i> ${r.distance}</span>
+                        <span><i class="fas fa-mountain"></i> ${r.difficulty}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddCustomRoute() {
+            const mountainName = localStorage.getItem('currentMountainName') || '泰山';
+            const name = prompt('请输入路线名称：');
+            if (!name) return;
+            const description = prompt('请输入路线描述：');
+            if (!description) return;
+            const duration = prompt('请输入预计时间（如：3-4小时）：');
+            if (!duration) return;
+            const distance = prompt('请输入路线距离（如：6km）：');
+            if (!distance) return;
+
+            const customRoutes = JSON.parse(localStorage.getItem('customRoutes_' + mountainName) || '[]');
+            customRoutes.push({
+                name,
+                description,
+                duration,
+                distance,
+                difficulty: '中等',
+                author: localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')).name : '匿名用户',
+                createTime: new Date().toLocaleDateString()
+            });
+            localStorage.setItem('customRoutes_' + mountainName, JSON.stringify(customRoutes));
+            loadCustomRoutes(mountainName);
         }
 
         function loadComments(mountainId) {

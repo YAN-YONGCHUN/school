@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>共享登山杖 - PorSavor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://webapi.amap.com/maps?v=2.0&key=7f15390a1a429eaa11dc14de4b750a7b"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -344,13 +345,13 @@
     <nav class="navbar">
         <a href="index.html" class="logo">
             <span>⛰️</span>
-            <span>MemSavor</span>
+            <span>PorSavor</span>
         </a>
         <div class="nav-menu">
             <a href="index.html">首页</a>
             <a href="rent.html" class="active">共享登山杖</a>
-            <a href="partner.html">登山搭子</a>
-            <a href="badge.html">集章商城</a>
+            <a href="partner.html">登山空间</a>
+            <a href="badge.html">限定徽章</a>
             <a href="spots.html">山峰列表</a>
         </div>
         <div class="nav-actions">
@@ -378,40 +379,13 @@
             </div>
         </div>
 
-        <div class="feature-row">
-            <div class="feature-box">
-                <div class="feature-box-icon">📍</div>
-                <h3>GPS定位</h3>
-                <p>实时定位追踪，记录登山轨迹<br>分享位置给好友，安全有保障</p>
-            </div>
-            <div class="feature-box">
-                <div class="feature-box-icon">📊</div>
-                <h3>数据记录</h3>
-                <p>自动记录步数、里程、海拔<br>消耗卡路里等运动数据</p>
-            </div>
-            <div class="feature-box">
-                <div class="feature-box-icon">🆘</div>
-                <h3>安全预警</h3>
-                <p>偏离路线提醒、低电量预警<br>一键SOS紧急求助功能</p>
-            </div>
-        </div>
-
         <div class="map-section">
             <div class="map-header">
-                <h3>🗺️ 附近租借点</h3>
-                <button class="btn btn-outline" onclick="locateMe()"><i class="fas fa-location-arrow"></i> 定位我</button>
+                <h3>📍 租借点地图</h3>
+                <p>点击地图上的标记查看租借点详情</p>
             </div>
-            <div class="map-content">
-                <div class="map-placeholder">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <p>地图加载中...</p>
-                </div>
-                <div class="map-markers">
-                    <div class="map-marker" style="top: 20%; left: 30%;" data-count="5" title="泰山景区"><i class="fas fa-mountain"></i></div>
-                    <div class="map-marker" style="top: 40%; left: 60%;" data-count="3" title="黄山景区"><i class="fas fa-mountain"></i></div>
-                    <div class="map-marker" style="top: 60%; left: 45%;" data-count="8" title="华山景区"><i class="fas fa-mountain"></i></div>
-                    <div class="map-marker" style="top: 75%; left: 70%;" data-count="4" title="峨眉山景区"><i class="fas fa-mountain"></i></div>
-                </div>
+            <div class="map-container" style="height: 400px; border-radius: 12px; overflow: hidden;">
+                <div id="rentMap" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
@@ -426,34 +400,35 @@
         </div>
 
         <div class="price-section">
-            <h3 style="text-align: center;">💰 租借价格</h3>
+            <h3 style="text-align: center;">💰 优惠价格</h3>
             <div class="price-grid">
-                <div class="price-card">
-                    <div class="price-name">按小时</div>
-                    <div class="price-amount">¥5<span class="price-unit">/小时</span></div>
-                    <ul class="price-features">
-                        <li>适合短途登山</li>
-                        <li>按实际使用计费</li>
-                        <li>押金 ¥50</li>
-                    </ul>
-                    <button class="btn btn-outline price-btn" onclick="selectPlan('hour')">选择</button>
-                </div>
                 <div class="price-card popular">
-                    <div class="price-name">按天</div>
-                    <div class="price-amount">¥29<span class="price-unit">/天</span></div>
+                    <div class="price-name">租借服务</div>
+                    <div class="price-amount">¥1<span class="price-unit">/小时</span></div>
                     <ul class="price-features">
-                        <li>不限使用时长</li>
-                        <li>当天有效</li>
-                        <li>押金 ¥50</li>
-                        <li>赠送保险</li>
+                        <li>按实际使用计费</li>
+                        <li>高品质登山杖</li>
+                        <li>押金 ¥50（归还退还）</li>
+                        <li>扫码即租，方便快捷</li>
                     </ul>
-                    <button class="btn btn-primary price-btn" onclick="selectPlan('day')">选择</button>
+                    <button class="btn btn-primary price-btn" onclick="showScanModal()">立即租借</button>
+                </div>
+                <div class="price-card">
+                    <div class="price-name">登山杖售卖</div>
+                    <div class="price-amount">¥50<span class="price-unit">/根</span></div>
+                    <ul class="price-features">
+                        <li>碳纤维材质，超轻便携</li>
+                        <li>三节可调节高度</li>
+                        <li>防滑手柄，舒适握感</li>
+                        <li>终身质保服务</li>
+                    </ul>
+                    <button class="btn btn-outline price-btn" onclick="buyPole()">立即购买</button>
                 </div>
                 <div class="price-card">
                     <div class="price-name">会员卡</div>
-                    <div class="price-amount">¥99<span class="price-unit">/月</span></div>
+                    <div class="price-amount">¥99<span class="price-unit">/年</span></div>
                     <ul class="price-features">
-                        <li>无限次使用</li>
+                        <li>无限次租借</li>
                         <li>免押金</li>
                         <li>优先预订</li>
                         <li>专属客服</li>
@@ -622,8 +597,55 @@
             location.reload();
         }
 
+        // 初始化高德地图
+        function initRentMap() {
+            const map = new AMap.Map('rentMap', {
+                zoom: 5,
+                center: [104.1954, 35.8617],
+                mapStyle: 'amap://styles/whitesmoke'
+            });
+
+            // 租借点数据
+            const rentPoints = [
+                { name: '泰山景区', location: [117.128611, 36.258611], count: 5 },
+                { name: '黄山景区', location: [118.170417, 30.134167], count: 3 },
+                { name: '华山景区', location: [110.090278, 34.527278], count: 8 },
+                { name: '峨眉山景区', location: [103.484722, 29.525278], count: 4 }
+            ];
+
+            // 添加标记
+            rentPoints.forEach(point => {
+                const marker = new AMap.Marker({
+                    position: point.location,
+                    content: `<div style="
+                        background: linear-gradient(135deg, #4CAF50, #2E7D32);
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 25px;
+                        font-weight: bold;
+                        white-space: nowrap;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        border: 3px solid white;
+                        cursor: pointer;
+                    ">🏔️ ${point.name} (${point.count}根可用)</div>`,
+                    offset: new AMap.Pixel(-80, -35)
+                });
+
+                marker.on('click', function() {
+                    alert(`${point.name}\n可用登山杖：${point.count}根\n点击"立即租借"开始使用`);
+                });
+
+                map.add(marker);
+            });
+        }
+
         checkLogin();
         renderOrders();
+
+        // 等待地图API加载完成
+        setTimeout(() => {
+            initRentMap();
+        }, 500);
     </script>
 </body>
 </html>
