@@ -1,149 +1,64 @@
-# MemSavor 登山共享平台
+# 攀峰计划
 
-🏔️ 一个现代化的登山共享平台，包含山峰探索、登山杖租借、登山搭子匹配、集章商城等功能。
+《攀峰计划》是一套围绕“计算机学科 + 校园文化 + 创新实践”打造的纯前端网页设计作品，适合直接部署到 GitHub Pages。
 
-## 🏗️ 混合架构
+## 作品特点
 
-```
-┌─────────────────┐         API请求          ┌─────────────────┐
-│                 │  ───────────────────────▶ │                 │
-│  GitHub Pages   │                          │  Vercel Server  │
-│  (前端静态托管)  │  ◀─────────────────────── │  (后端API)      │
-│                 │         JSON响应          │                 │
-└─────────────────┘                          └─────────────────┘
-```
+- 纯前端静态站点，无需后端、无需数据库
+- 页面数量充足，适合比赛展示与答辩讲解
+- 内置登录注册、账户中心、社区报名、数据驾驶舱
+- 所有交互均基于浏览器 `localStorage` 完成
+- 学校名称、学院名称、Logo 和比赛名称可集中替换
+- 资源体积轻，适合网页设计比赛提交
 
-## 📁 项目结构
+## 主要页面
 
-```
-mountain-web/
-├── api/                    # Vercel Serverless Functions
-│   ├── lib/
-│   │   ├── auth.js        # JWT认证模块
-│   │   ├── db.js          # 数据存储模块
-│   │   └── utils.js       # 工具函数
-│   ├── auth.js            # 认证API
-│   ├── mountains.js       # 山峰API
-│   ├── users.js           # 用户API
-│   ├── orders.js          # 订单API
-│   ├── rentals.js         # 租借API
-│   ├── partners.js        # 搭子API
-│   └── products.js        # 商品API
-├── js/
-│   └── api.js             # 前端API服务层
-├── *.html                 # 前端页面
-├── vercel.json            # Vercel配置
-├── package.json           # 项目依赖
-└── .env.example           # 环境变量示例
-```
+- `index.html`：首页
+- `detail.html`：学科全景
+- `spots.html`：实验空间
+- `rent.html`：课程图谱
+- `partner.html`：协同育人
+- `badge.html`：成果荣誉
+- `community.html`：创新社区
+- `admin-login.html`：智慧服务
+- `login.html`：登录注册
+- `account.html`：账户中心
+- `admin.html`：数据驾驶舱
 
-## 🚀 部署指南
+## 纯前端功能
 
-### 1. 部署到 Vercel
+- 登录 / 注册
+- 账户中心资料修改
+- 社区报名提交
+- 本地报名动态展示
+- 数据驾驶舱本地看板
+- 快速搜索与跨页面跳转
 
-```bash
-# 安装 Vercel CLI
-npm install -g vercel
+## 直接预览
 
-# 登录 Vercel
-vercel login
+这是纯前端项目，直接用浏览器打开 [index.html](./index.html) 即可预览。
 
-# 部署项目
-vercel
+更推荐的方式：
 
-# 部署到生产环境
-vercel --prod
-```
+1. 上传到 GitHub 仓库
+2. 开启 GitHub Pages
+3. 通过公开链接访问
 
-### 2. 配置环境变量
+## 关键文件
 
-在 Vercel Dashboard 中设置以下环境变量：
+- `css/site.css`：全站统一样式
+- `js/site-data.js`：站点内容与品牌信息配置
+- `js/site-store.js`：纯前端本地数据与账户系统
+- `js/site-ui.js`：页面交互逻辑
+- `DEPLOY_GITHUB_PAGES.md`：GitHub Pages 部署说明
+- `品牌信息修改说明.md`：学校名称、学院名称、Logo 替换说明
+- `项目介绍文档.md`：比赛介绍文档
+- `作品阐述.md`：作品阐述
 
-| 变量名 | 说明 | 示例值 |
-|--------|------|--------|
-| JWT_SECRET | JWT密钥 | your-secret-key |
+## 注意
 
-### 3. 部署前端到 GitHub Pages
+由于本项目是纯前端实现：
 
-1. 进入 GitHub 仓库 Settings
-2. 找到 Pages 选项
-3. 选择分支和目录
-4. 保存后等待部署完成
-
-### 4. 更新 API 地址
-
-部署完成后，修改 `js/api.js` 中的 `API_BASE_URL`：
-
-```javascript
-const API_BASE_URL = 'https://your-app.vercel.app';
-```
-
-## 🔌 API 端点
-
-### 认证 API
-| 方法 | 端点 | 说明 |
-|------|------|------|
-| POST | /api/auth/register | 用户注册 |
-| POST | /api/auth/login | 用户登录 |
-| POST | /api/auth/admin/login | 管理员登录 |
-| GET | /api/auth/me | 获取当前用户 |
-
-### 山峰 API
-| 方法 | 端点 | 说明 |
-|------|------|------|
-| GET | /api/mountains | 获取山峰列表 |
-| GET | /api/mountains/:id | 获取山峰详情 |
-| POST | /api/mountains | 添加山峰（需管理员权限） |
-| PUT | /api/mountains/:id | 更新山峰（需管理员权限） |
-| DELETE | /api/mountains/:id | 删除山峰（需管理员权限） |
-
-### 用户 API
-| 方法 | 端点 | 说明 |
-|------|------|------|
-| GET | /api/users | 获取用户列表（需管理员权限） |
-| POST | /api/users | 添加用户（需管理员权限） |
-| PUT | /api/users/:phone | 更新用户（需管理员权限） |
-| DELETE | /api/users/:phone | 删除用户（需管理员权限） |
-
-### 其他 API
-- `/api/orders` - 订单管理
-- `/api/rentals` - 租借管理
-- `/api/partners` - 搭子管理
-- `/api/products` - 商品管理
-
-## 🔐 默认账号
-
-### 管理员账号
-| 账号 | 密码 | 角色 |
-|------|------|------|
-| admin | admin123 | 超级管理员 |
-| manager | manager123 | 运营经理 |
-| operator | operator123 | 运营专员 |
-
-### 测试用户
-| 账号 | 密码 |
-|------|------|
-| 13800138000 | 123456 |
-
-## 🛠️ 本地开发
-
-```bash
-# 安装依赖
-npm install
-
-# 启动本地开发服务器
-npm run dev
-
-# 访问 http://localhost:3000
-```
-
-## 📝 技术栈
-
-- **前端**: HTML5, CSS3, JavaScript (原生)
-- **后端**: Vercel Serverless Functions (Node.js)
-- **认证**: JWT (JSON Web Token)
-- **存储**: 内存存储（可扩展为数据库）
-
-## 📄 License
-
-MIT License
+- 账户信息与报名数据保存在当前浏览器本地
+- 换浏览器或清空浏览器缓存后，本地数据会重置
+- 这非常适合比赛展示和静态托管，但不适合真实生产级用户系统

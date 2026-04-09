@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="攀峰计划标志">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f8a86"/>
+      <stop offset="100%" stop-color="#0b4f57"/>
+    </linearGradient>
+    <linearGradient id="peak" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff6df"/>
+      <stop offset="100%" stop-color="#ffd9b8"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f8ffff"/>
+      <stop offset="100%" stop-color="#c8f1ec"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="62" height="62" rx="18" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="21" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.8"/>
+
+  <path d="M16 40.5L25.2 26.2L30.7 33.2L38.8 21.6L48 40.5" fill="none" stroke="url(#line)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M31.2 42.5V18.2" fill="none" stroke="url(#line)" stroke-width="2.8" stroke-linecap="round"/>
+
+  <path d="M25.2 26.2L29.1 20.4L33.1 25.3L38.8 21.6" fill="none" stroke="url(#peak)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="31.2" cy="15.6" r="3.1" fill="#ffb46e" stroke="#fff2df" stroke-width="1.2"/>
+  <circle cx="16.2" cy="40.5" r="2.2" fill="#c5f0eb"/>
+  <circle cx="48" cy="40.5" r="2.2" fill="#c5f0eb"/>
+
+  <path d="M19.8 46.8H44.2" stroke="rgba(255,255,255,0.36)" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

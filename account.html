@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户中心 | 攀峰计划</title>
+    <link rel="stylesheet" href="css/site.css">
+    <script defer src="js/site-data.js"></script>
+    <script defer src="js/site-store.js"></script>
+    <script defer src="js/site-ui.js"></script>
+</head>
+<body data-page="account">
+    <div class="site-shell">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <a class="brand" href="index.html">
+                    <span class="brand-mark"><span data-logo-text></span></span>
+                    <span class="brand-text">
+                        <strong data-brand-name></strong>
+                        <span data-brand-subtitle></span>
+                    </span>
+                </a>
+                <button class="nav-toggle" type="button" aria-label="切换导航">☰</button>
+                <nav class="nav-links">
+                    <a data-link href="index.html">首页</a>
+                    <a data-link href="community.html">创新社区</a>
+                    <a data-link href="login.html">登录注册</a>
+                    <a data-link href="admin.html">数据驾驶舱</a>
+                    <a class="nav-cta" data-link href="account.html">账户中心</a>
+                </nav>
+                <div class="nav-extras" data-auth-area></div>
+            </div>
+        </header>
+
+        <main class="page">
+            <section class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <span class="eyebrow">Account Center</span>
+                        <h1>这是你的个人技术名片与社区记录中心。</h1>
+                        <p class="lead">账户中心展示你的身份信息、主攻方向、报名记录和个人简介，让整站更像真正可持续使用的校园平台。</p>
+                    </div>
+                    <aside class="hero-panel">
+                        <h2>你可以在这里做什么</h2>
+                        <ul class="bullet-list">
+                            <li>查看个人信息</li>
+                            <li>修改方向与简介</li>
+                            <li>查看自己的社区报名</li>
+                        </ul>
+                    </aside>
+                </div>
+            </section>
+
+            <section class="section">
+                <div id="account-overview" class="dashboard-grid"></div>
+            </section>
+
+            <section class="section account-layout">
+                <div class="auth-stack">
+                    <div class="panel-card">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-label">Profile</span>
+                                <h2>账户资料</h2>
+                                <p>当前账户的基础信息展示。</p>
+                            </div>
+                        </div>
+                        <div id="account-profile"></div>
+                    </div>
+
+                    <div class="form-card">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-label">Edit</span>
+                                <h2>更新个人资料</h2>
+                                <p>修改后的内容会保存在本地浏览器中。</p>
+                            </div>
+                        </div>
+                        <form id="account-form">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label for="account-name">姓名</label>
+                                    <input id="account-name" name="name" required>
+                                </div>
+                                <div class="field">
+                                    <label for="account-college">学院</label>
+                                    <input id="account-college" name="college" required>
+                                </div>
+                                <div class="field">
+                                    <label for="account-major">专业</label>
+                                    <input id="account-major" name="major" required>
+                                </div>
+                                <div class="field">
+                                    <label for="account-direction">方向</label>
+                                    <select id="account-direction" name="direction" required>
+                                        <option>人工智能</option>
+                                        <option>Web 全栈</option>
+                                        <option>软件工程</option>
+                                        <option>网络安全</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <label for="account-bio">个人简介</label>
+                                    <textarea id="account-bio" name="bio"></textarea>
+                                </div>
+                            </div>
+                            <div class="submit-row">
+                                <button class="button button-primary" type="submit">保存资料</button>
+                                <span id="account-status" class="status-note">更新后会立即反映到账户中心。</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-label">My Activity</span>
+                            <h2>我的社区报名</h2>
+                            <p>这里显示你提交到创新社区的项目记录。</p>
+                        </div>
+                    </div>
+                    <div id="account-submissions" class="card-grid" style="grid-template-columns:1fr;"></div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-label">My Posts</span>
+                            <h2>我的交流帖子</h2>
+                            <p>这里会显示你在交流社区发布的帖子。</p>
+                        </div>
+                    </div>
+                    <div id="account-posts" class="card-grid" style="grid-template-columns:1fr;"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

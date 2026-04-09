@@ -3,772 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>限定徽章活动 - PorSavor</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://webapi.amap.com/maps?v=2.0&key=7f15390a1a429eaa11dc14de4b750a7b&plugin=AMap.Walking"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #2E7D32;
-            --primary-light: #4CAF50;
-            --primary-dark: #1B5E20;
-            --accent: #FF6B35;
-            --gold: #FFD54F;
-            --bg-light: #F5F7FA;
-            --text-dark: #1A1A1A;
-            --text-gray: #666666;
-            --white: #FFFFFF;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--bg-light); color: var(--text-dark); }
-        
-        .navbar {
-            background: var(--white);
-            padding: 0 60px;
-            height: 70px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); text-decoration: none; }
-        .nav-menu { display: flex; gap: 40px; }
-        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 15px; }
-        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
-        .btn {
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary { background: var(--primary); color: var(--white); }
-        .btn-accent { background: var(--accent); color: var(--white); }
-        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        .btn-gold { background: linear-gradient(135deg, #FFD54F, #FFA000); color: #333; }
-
-        .container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 50px; }
-        
-        .page-header { text-align: center; margin-bottom: 50px; }
-        .page-title { font-size: 42px; font-weight: 700; margin-bottom: 15px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .page-desc { color: var(--text-gray); font-size: 18px; }
-
-        .stats-banner {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-            border-radius: 24px;
-            padding: 40px;
-            color: var(--white);
-            margin-bottom: 40px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-        }
-        .stat-card {
-            text-align: center;
-            padding: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 16px;
-        }
-        .stat-icon { font-size: 40px; margin-bottom: 10px; }
-        .stat-num { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
-        .stat-label { font-size: 14px; opacity: 0.9; }
-
-        .section-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .section-title i { color: var(--accent); }
-
-        .current-activity {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: var(--shadow);
-        }
-        
-        .activity-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-        }
-        
-        .activity-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 30px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .activity-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .activity-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800') center/cover;
-            opacity: 0.15;
-        }
-        .activity-content { position: relative; z-index: 1; }
-        .activity-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--gold);
-            color: #333;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .activity-month { font-size: 14px; opacity: 0.9; margin-bottom: 10px; }
-        .activity-mountain { font-size: 24px; font-weight: 700; margin-bottom: 15px; }
-        .activity-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .info-item { text-align: center; }
-        .info-label { font-size: 12px; opacity: 0.8; margin-bottom: 3px; }
-        .info-value { font-size: 16px; font-weight: 600; }
-        .activity-progress {
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .progress-bar {
-            height: 8px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--gold);
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
-        .progress-text { font-size: 13px; text-align: center; }
-        .activity-btn {
-            width: 100%;
-            padding: 12px;
-            background: white;
-            color: #667eea;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .activity-btn:hover { transform: scale(1.02); }
-        .activity-btn.registered { background: var(--gold); color: #333; }
-
-        .my-badges-section {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: var(--shadow);
-        }
-        .badges-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-        }
-        .badge-card {
-            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-        .badge-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-        .badge-card.unlocked { background: linear-gradient(135deg, var(--gold), #FFA000); }
-        .badge-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .badge-name { font-weight: 600; margin-bottom: 5px; }
-        .badge-date { font-size: 12px; color: var(--text-gray); }
-        .badge-serial {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-        }
-
-        .route-section {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: var(--shadow);
-        }
-        .route-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .route-tabs { display: flex; gap: 10px; }
-        .route-tab {
-            padding: 10px 20px;
-            background: var(--bg-light);
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        .route-tab.active { background: var(--primary); color: white; }
-        
-        .route-map {
-            height: 400px;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        #routeMap { width: 100%; height: 100%; }
-        
-        .route-info-card {
-            background: var(--bg-light);
-            border-radius: 16px;
-            padding: 25px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-        .route-stat { text-align: center; }
-        .route-stat-icon { font-size: 24px; margin-bottom: 8px; color: var(--primary); }
-        .route-stat-value { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
-        .route-stat-label { font-size: 13px; color: var(--text-gray); }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .modal.show { display: flex; }
-        .modal-content {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 40px;
-            width: 600px;
-            max-width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .modal-title { font-size: 24px; font-weight: 700; }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--text-gray);
-        }
-        .modal-close:hover { color: var(--text-dark); }
-        
-        .register-form { display: flex; flex-direction: column; gap: 20px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            font-size: 15px;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        .fee-info {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-        .fee-amount { font-size: 28px; font-weight: 700; color: var(--accent); }
-        .fee-note { font-size: 13px; color: var(--text-gray); margin-top: 5px; }
-
-        @media (max-width: 1024px) {
-            .activity-grid { grid-template-columns: 1fr; }
-            .stats-banner { grid-template-columns: repeat(2, 1fr); }
-            .route-info-card { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .navbar { padding: 0 20px; }
-            .nav-menu { display: none; }
-            .stats-banner { grid-template-columns: 1fr; }
-            .route-info-card { grid-template-columns: 1fr; }
-        }
-    </style>
+    <title>成果荣誉 | 攀峰计划</title>
+    <link rel="stylesheet" href="css/site.css">
+    <script defer src="js/site-data.js"></script>
+    <script defer src="js/site-store.js"></script>
+    <script defer src="js/site-ui.js"></script>
 </head>
-<body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <span>⛰️</span>
-            <span>PorSavor</span>
-        </a>
-        <div class="nav-menu">
-            <a href="index.html">首页</a>
-            <a href="rent.html">共享登山杖</a>
-            <a href="partner.html">登山空间</a>
-            <a href="badge.html" class="active">限定徽章</a>
-            <a href="spots.html">山峰列表</a>
-        </div>
-        <div class="nav-actions">
-            <span id="userName" style="color: var(--primary); font-weight: 500;"></span>
-            <button class="btn btn-outline" id="loginBtn" onclick="location.href='login.html'">登录</button>
-            <button class="btn btn-primary" id="registerBtn" onclick="location.href='login.html'">注册</button>
-            <button class="btn btn-accent" id="logoutBtn" onclick="logout()" style="display:none;">退出</button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="page-header">
-            <h1 class="page-title">🏆 限定徽章活动</h1>
-            <p class="page-desc">每月限定徽章，挑战四座名山，先到先得！</p>
-        </div>
-
-        <div class="stats-banner">
-            <div class="stat-card">
-                <div class="stat-icon">🎖️</div>
-                <div class="stat-num" id="myBadgesCount">5</div>
-                <div class="stat-label">已获得徽章</div>
+<body data-page="badge">
+    <div class="site-shell">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <a class="brand" href="index.html">
+                    <span class="brand-mark"><span data-logo-text></span></span>
+                    <span class="brand-text">
+                        <strong data-brand-name></strong>
+                        <span data-brand-subtitle></span>
+                    </span>
+                </a>
+                <button class="nav-toggle" type="button" aria-label="切换导航">☰</button>
+                <nav class="nav-links">
+                    <a data-link href="index.html">首页</a>
+                    <a data-link href="detail.html">学科全景</a>
+                    <a data-link href="spots.html">实验空间</a>
+                    <a data-link href="rent.html">课程图谱</a>
+                    <a data-link href="partner.html">协同育人</a>
+                    <a data-link href="badge.html">成果荣誉</a>
+                    <a data-link href="community.html">创新社区</a>
+                    <a data-link href="admin-login.html">智慧服务</a>
+                    <a class="nav-cta" data-link href="admin.html">数据驾驶舱</a>
+                </nav>
+                <div class="nav-extras" data-auth-area></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏔️</div>
-                <div class="stat-num" id="completedMountains">12</div>
-                <div class="stat-label">完成山峰</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⏱️</div>
-                <div class="stat-num" id="currentRank">128</div>
-                <div class="stat-label">当前排名</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🎯</div>
-                <div class="stat-num" id="activeActivities">2</div>
-                <div class="stat-label">参与活动</div>
-            </div>
-        </div>
+        </header>
 
-        <div class="current-activity">
-            <h2 class="section-title"><i class="fas fa-fire"></i> 本月限定活动</h2>
-            <div class="activity-grid" id="activityGrid"></div>
-        </div>
-
-        <div class="my-badges-section">
-            <h2 class="section-title"><i class="fas fa-medal"></i> 我的徽章收藏</h2>
-            <div class="badges-grid" id="myBadgesGrid"></div>
-        </div>
-
-        <div class="route-section">
-            <div class="route-header">
-                <h2 class="section-title"><i class="fas fa-route"></i> 活动路线</h2>
-                <div class="route-tabs">
-                    <div class="route-tab active" onclick="switchRoute('泰山')">泰山</div>
-                    <div class="route-tab" onclick="switchRoute('华山')">华山</div>
-                    <div class="route-tab" onclick="switchRoute('黄山')">黄山</div>
-                    <div class="route-tab" onclick="switchRoute('峨眉山')">峨眉山</div>
-                </div>
-            </div>
-            <div class="route-map">
-                <div id="routeMap"></div>
-            </div>
-            <div class="route-info-card" id="routeInfoCard"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">报名参加活动</h3>
-                <button class="modal-close" onclick="hideRegisterModal()">×</button>
-            </div>
-            <div class="register-form">
-                <div class="form-group">
-                    <label>活动名称</label>
-                    <input type="text" id="activityName" readonly>
-                </div>
-                <div class="form-group">
-                    <label>您的姓名</label>
-                    <input type="text" id="participantName" placeholder="请输入姓名">
-                </div>
-                <div class="form-group">
-                    <label>联系电话</label>
-                    <input type="tel" id="participantPhone" placeholder="请输入手机号">
-                </div>
-                <div class="form-group">
-                    <label>紧急联系人</label>
-                    <input type="text" id="emergencyContact" placeholder="请输入紧急联系人">
-                </div>
-                <div class="fee-info">
-                    <div style="font-size: 14px; margin-bottom: 5px;">报名费用</div>
-                    <div class="fee-amount">¥20.00</div>
-                    <div class="fee-note">💡 如中途退出，将退还 ¥19.01</div>
-                </div>
-                <button class="btn btn-gold" style="width: 100%; padding: 15px; font-size: 16px;" onclick="confirmRegister()">
-                    确认报名并支付
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/api-static.js"></script>
-    <script>
-        let mapInstance = null;
-        let currentRoute = '泰山';
-        let activities = [];
-        let myBadges = [];
-
-        const routeData = {
-            '泰山': {
-                start: [117.128611, 36.258611],
-                end: [117.105000, 36.265000],
-                distance: 8.5,
-                duration: '4-6小时',
-                difficulty: '中等',
-                name: '红门经典登山线'
-            },
-            '华山': {
-                start: [110.090278, 34.527278],
-                end: [110.052778, 34.541111],
-                distance: 12.0,
-                duration: '6-8小时',
-                difficulty: '困难',
-                name: '自古华山一条路'
-            },
-            '黄山': {
-                start: [118.170417, 30.134167],
-                end: [118.186389, 30.137222],
-                distance: 10.0,
-                duration: '5-7小时',
-                difficulty: '中等',
-                name: '云谷寺登山线'
-            },
-            '峨眉山': {
-                start: [103.484722, 29.525278],
-                end: [103.462500, 29.543889],
-                distance: 30.0,
-                duration: '2-3天',
-                difficulty: '困难',
-                name: '报国寺朝圣线'
-            }
-        };
-
-        function initActivities() {
-            const now = new Date();
-            const currentMonth = now.getMonth() + 1;
-            const currentYear = now.getFullYear();
-            
-            activities = [
-                {
-                    id: 1,
-                    mountain: '泰山',
-                    month: `${currentYear}年${currentMonth}月`,
-                    badge: '泰山征服者',
-                    totalSlots: 10000,
-                    registered: 6580,
-                    completed: 2340,
-                    deadline: `${currentYear}-${currentMonth}-28`,
-                    status: 'active',
-                    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                },
-                {
-                    id: 2,
-                    mountain: '华山',
-                    month: `${currentYear}年${currentMonth}月`,
-                    badge: '华山勇士',
-                    totalSlots: 10000,
-                    registered: 5420,
-                    completed: 1890,
-                    deadline: `${currentYear}-${currentMonth}-28`,
-                    status: 'active',
-                    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-                },
-                {
-                    id: 3,
-                    mountain: '黄山',
-                    month: `${currentYear}年${currentMonth}月`,
-                    badge: '黄山探索者',
-                    totalSlots: 10000,
-                    registered: 7230,
-                    completed: 3120,
-                    deadline: `${currentYear}-${currentMonth}-28`,
-                    status: 'active',
-                    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-                },
-                {
-                    id: 4,
-                    mountain: '峨眉山',
-                    month: `${currentYear}年${currentMonth}月`,
-                    badge: '峨眉朝圣者',
-                    totalSlots: 10000,
-                    registered: 4890,
-                    completed: 1560,
-                    deadline: `${currentYear}-${currentMonth}-28`,
-                    status: 'active',
-                    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-                }
-            ];
-        }
-
-        function initMyBadges() {
-            myBadges = [
-                { id: 1, name: '泰山征服者', icon: '🏔️', date: '2024-01', serial: '0001234', unlocked: true },
-                { id: 2, name: '华山勇士', icon: '🗻', date: '2024-02', serial: '0002567', unlocked: true },
-                { id: 3, name: '黄山探索者', icon: '⛰️', date: '2024-03', serial: '0003890', unlocked: true },
-                { id: 4, name: '峨眉朝圣者', icon: '🌄', date: '2024-04', serial: '0004123', unlocked: true },
-                { id: 5, name: '日出猎人', icon: '🌅', date: '2024-05', serial: '0005456', unlocked: true }
-            ];
-        }
-
-        function renderActivities() {
-            const container = document.getElementById('activityGrid');
-            container.innerHTML = activities.map(activity => {
-                const progress = (activity.completed / activity.totalSlots * 100).toFixed(1);
-                const remaining = activity.totalSlots - activity.registered;
-                const isRegistered = Math.random() > 0.5; // 模拟是否已报名
-                
-                return `
-                    <div class="activity-card" style="background: ${activity.color}">
-                        <div class="activity-badge">${activity.badge}</div>
-                        <div class="activity-content">
-                            <div class="activity-month">${activity.month}限定</div>
-                            <div class="activity-mountain">🏔️ ${activity.mountain}</div>
-                            <div class="activity-info">
-                                <div class="info-item">
-                                    <div class="info-label">报名人数</div>
-                                    <div class="info-value">${activity.registered}</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">完成人数</div>
-                                    <div class="info-value">${activity.completed}</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">剩余名额</div>
-                                    <div class="info-value">${remaining}</div>
-                                </div>
-                            </div>
-                            <div class="activity-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="progress-text">已发放 ${progress}% (${activity.completed}/${activity.totalSlots})</div>
-                            </div>
-                            <button class="activity-btn ${isRegistered ? 'registered' : ''}" onclick="showRegisterModal(${activity.id})">
-                                ${isRegistered ? '已报名，查看路线' : '立即报名 ¥20'}
-                            </button>
-                        </div>
+        <main class="page">
+            <section class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <span class="eyebrow">Achievements</span>
+                        <h1>让成果会说话，让技术文化被看见。</h1>
+                        <p class="lead">成果荣誉页聚焦竞赛样本、校园数字服务作品和社群文化故事，把结果与过程一起展示，既有说服力，也更有温度。</p>
                     </div>
-                `;
-            }).join('');
-        }
-
-        function renderMyBadges() {
-            const container = document.getElementById('myBadgesGrid');
-            container.innerHTML = myBadges.map(badge => `
-                <div class="badge-card ${badge.unlocked ? 'unlocked' : ''}">
-                    ${badge.unlocked ? `<div class="badge-serial">#${badge.serial}</div>` : ''}
-                    <div class="badge-icon">${badge.icon}</div>
-                    <div class="badge-name">${badge.name}</div>
-                    <div class="badge-date">${badge.unlocked ? badge.date : '未解锁'}</div>
+                    <aside class="hero-panel">
+                        <h2>页面目标</h2>
+                        <p>通过样本案例和数字化指标，形成适合展示、答辩和传播的荣誉长廊效果。</p>
+                    </aside>
                 </div>
-            `).join('');
-        }
+            </section>
 
-        function initMap() {
-            mapInstance = new AMap.Map('routeMap', {
-                zoom: 13,
-                center: routeData[currentRoute].start,
-                mapStyle: 'amap://styles/whitesmoke'
-            });
-            
-            updateRoute();
-        }
-
-        function updateRoute() {
-            const route = routeData[currentRoute];
-            
-            // 清除之前的覆盖物
-            mapInstance.clearMap();
-            
-            // 添加起点标记
-            const startMarker = new AMap.Marker({
-                position: route.start,
-                content: '<div style="background: #4CAF50; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; white-space: nowrap;">🚩 起点</div>',
-                offset: new AMap.Pixel(-30, -15)
-            });
-            
-            // 添加终点标记
-            const endMarker = new AMap.Marker({
-                position: route.end,
-                content: '<div style="background: #FF6B35; color: white; padding: 8px 12px; border-radius: 20px; font-weight: bold; white-space: nowrap;">🏁 终点</div>',
-                offset: new AMap.Pixel(-30, -15)
-            });
-            
-            mapInstance.add([startMarker, endMarker]);
-            
-            // 绘制路线（简化版，实际应该使用步行导航API）
-            const polyline = new AMap.Polyline({
-                path: [route.start, route.end],
-                strokeColor: '#4CAF50',
-                strokeWeight: 4,
-                strokeOpacity: 0.8,
-                strokeStyle: 'dashed'
-            });
-            mapInstance.add(polyline);
-            
-            // 调整视野
-            mapInstance.setFitView([startMarker, endMarker, polyline]);
-            
-            // 更新路线信息卡片
-            document.getElementById('routeInfoCard').innerHTML = `
-                <div class="route-stat">
-                    <div class="route-stat-icon">📍</div>
-                    <div class="route-stat-value">${route.name}</div>
-                    <div class="route-stat-label">路线名称</div>
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-label">Honor Gallery</span>
+                        <h2>成果类型样本</h2>
+                        <p>不是单纯堆叠奖项，而是展示计算机学科如何通过课程、项目和服务形成多元成果。</p>
+                    </div>
                 </div>
-                <div class="route-stat">
-                    <div class="route-stat-icon">📏</div>
-                    <div class="route-stat-value">${route.distance}km</div>
-                    <div class="route-stat-label">总距离</div>
+                <div id="badge-honors" class="card-grid"></div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-label">Stories</span>
+                        <h2>从想法到作品的三段故事</h2>
+                        <p>评委除了看技术，也会看故事性和校园价值，这一部分专门强化作品叙事表现力。</p>
+                    </div>
                 </div>
-                <div class="route-stat">
-                    <div class="route-stat-icon">⏱️</div>
-                    <div class="route-stat-value">${route.duration}</div>
-                    <div class="route-stat-label">预计时间</div>
+                <div id="badge-stories" class="card-grid"></div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-label">Data Wall</span>
+                        <h2>荣誉数字墙</h2>
+                        <p>用简洁的数据看板形成既有视觉冲击力、又不依赖复杂图表库的展示效果。</p>
+                    </div>
                 </div>
-                <div class="route-stat">
-                    <div class="route-stat-icon">💪</div>
-                    <div class="route-stat-value">${route.difficulty}</div>
-                    <div class="route-stat-label">难度等级</div>
-                </div>
-            `;
-        }
-
-        function switchRoute(mountain) {
-            currentRoute = mountain;
-            
-            // 更新标签样式
-            document.querySelectorAll('.route-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.textContent === mountain) {
-                    tab.classList.add('active');
-                }
-            });
-            
-            // 更新地图中心
-            mapInstance.setCenter(routeData[mountain].start);
-            mapInstance.setZoom(13);
-            
-            updateRoute();
-        }
-
-        function showRegisterModal(activityId) {
-            const activity = activities.find(a => a.id === activityId);
-            if (!activity) return;
-            
-            document.getElementById('activityName').value = `${activity.month} - ${activity.mountain}限定徽章活动`;
-            document.getElementById('registerModal').classList.add('show');
-        }
-
-        function hideRegisterModal() {
-            document.getElementById('registerModal').classList.remove('show');
-        }
-
-        function confirmRegister() {
-            const name = document.getElementById('participantName').value;
-            const phone = document.getElementById('participantPhone').value;
-            const emergency = document.getElementById('emergencyContact').value;
-            
-            if (!name || !phone || !emergency) {
-                alert('请填写完整信息');
-                return;
-            }
-            
-            // 模拟支付成功
-            alert('报名成功！请按时完成登山活动以获得限定徽章。');
-            hideRegisterModal();
-        }
-
-        function checkLogin() {
-            const user = localStorage.getItem('currentUser');
-            const token = api.getToken();
-            if (user && token) {
-                const userData = JSON.parse(user);
-                document.getElementById('userName').textContent = '欢迎, ' + userData.name;
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('registerBtn').style.display = 'none';
-                document.getElementById('logoutBtn').style.display = 'inline-block';
-            }
-        }
-
-        function logout() {
-            api.logout();
-            location.reload();
-        }
-
-        // 初始化
-        checkLogin();
-        initActivities();
-        initMyBadges();
-        renderActivities();
-        renderMyBadges();
-        
-        // 等待地图API加载完成
-        setTimeout(() => {
-            initMap();
-        }, 500);
-    </script>
+                <div id="badge-metrics" class="bento-grid"></div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创新社区 | 攀峰计划</title>
+    <link rel="stylesheet" href="css/site.css">
+    <script defer src="js/site-data.js"></script>
+    <script defer src="js/site-store.js"></script>
+    <script defer src="js/site-ui.js"></script>
+</head>
+<body data-page="community">
+    <div class="site-shell">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <a class="brand" href="index.html">
+                    <span class="brand-mark"><span data-logo-text></span></span>
+                    <span class="brand-text">
+                        <strong data-brand-name></strong>
+                        <span data-brand-subtitle></span>
+                    </span>
+                </a>
+                <button class="nav-toggle" type="button" aria-label="切换导航">☰</button>
+                <nav class="nav-links">
+                    <a data-link href="index.html">首页</a>
+                    <a data-link href="detail.html">学科全景</a>
+                    <a data-link href="community.html">创新社区</a>
+                    <a data-link href="login.html">登录注册</a>
+                    <a data-link href="admin.html">数据驾驶舱</a>
+                    <a class="nav-cta" data-link href="account.html">账户中心</a>
+                </nav>
+                <div class="nav-extras" data-auth-area></div>
+            </div>
+        </header>
+
+        <main class="page">
+            <section class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <span class="eyebrow">Community</span>
+                        <h1>把兴趣聚成队伍，把创意变成项目。</h1>
+                        <p class="lead">创新社区页承担招募、互动和数据流转功能。即使是纯前端版本，也能完成报名提交、记录展示和账户联动。</p>
+                        <div class="hero-actions">
+                            <a class="button button-primary" href="#join-form">立即报名</a>
+                            <a class="button button-secondary" href="admin.html">查看驾驶舱</a>
+                        </div>
+                    </div>
+                    <aside class="hero-panel">
+                        <h2>社区关键词</h2>
+                        <div class="pill-row">
+                            <span>方向陪跑</span>
+                            <span>项目认领</span>
+                            <span>路演展示</span>
+                            <span>社群协作</span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-label">Benefits</span>
+                        <h2>加入社区后的三种收获</h2>
+                        <p>平台强调人人可参与，不把创新限制在少数高手身上，而是让更多同学看见自己的位置。</p>
+                    </div>
+                </div>
+                <div id="community-benefits" class="card-grid"></div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-label">Community Hub</span>
+                        <h2>交流广场</h2>
+                        <p>支持发帖、搜索、筛选、点赞、收藏和热门标签，让页面更像真正的校园交流社区。</p>
+                    </div>
+                </div>
+                <div id="community-stats" class="stats-strip"></div>
+                <div class="community-shell" style="margin-top:18px;">
+                    <div class="community-sidebar">
+                        <div class="form-card">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-label">Post</span>
+                                    <h2>发布交流帖</h2>
+                                    <p>分享组队需求、项目经验、答辩想法或技术问题。</p>
+                                </div>
+                            </div>
+                            <form id="post-form">
+                                <div class="field">
+                                    <label for="post-title">标题</label>
+                                    <input id="post-title" name="title" placeholder="例如：想组队做一个校园活动可视化平台" required>
+                                </div>
+                                <div class="field">
+                                    <label for="post-direction">方向</label>
+                                    <select id="post-direction" name="direction" required>
+                                        <option value="">请选择方向</option>
+                                        <option>人工智能</option>
+                                        <option>Web 全栈</option>
+                                        <option>软件工程</option>
+                                        <option>网络安全</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="post-tags">标签</label>
+                                    <input id="post-tags" name="tags" placeholder="如：组队,答辩,网页设计">
+                                    <span class="field-helper">支持多个标签，用逗号分隔。</span>
+                                </div>
+                                <div class="field">
+                                    <label for="post-content">正文</label>
+                                    <textarea id="post-content" name="content" placeholder="写下你的想法、问题或合作需求..." required></textarea>
+                                </div>
+                                <div class="submit-row">
+                                    <button class="button button-primary" type="submit">发布帖子</button>
+                                    <span id="post-status" class="status-note">登录后发帖会使用你的账户名称。</span>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="panel-card">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-label">Hot Tags</span>
+                                    <h2>热门标签</h2>
+                                    <p>点击标签可快速筛选帖子。</p>
+                                </div>
+                            </div>
+                            <div id="community-tags" class="chip-group"></div>
+                        </div>
+                    </div>
+
+                    <div class="community-main">
+                        <div class="panel-card">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-label">Feed</span>
+                                    <h2>帖子流</h2>
+                                    <p>按照关键词、方向和排序方式查看社区交流内容。</p>
+                                </div>
+                            </div>
+                            <div class="community-toolbar">
+                                <input id="post-search" type="text" placeholder="搜索帖子标题、正文或标签">
+                                <select id="post-filter-direction">
+                                    <option value="">全部方向</option>
+                                    <option>人工智能</option>
+                                    <option>Web 全栈</option>
+                                    <option>软件工程</option>
+                                    <option>网络安全</option>
+                                </select>
+                                <select id="post-sort-mode">
+                                    <option value="latest">最新发布</option>
+                                    <option value="hot">热度优先</option>
+                                    <option value="star">收藏优先</option>
+                                </select>
+                            </div>
+                            <div id="community-active-tag" class="chip-group" style="margin-top:14px;"></div>
+                            <div id="community-feed" class="feed-list" style="margin-top:18px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section form-shell">
+                <div class="form-card">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-label">Join Us</span>
+                            <h2>提交你的方向与项目想法</h2>
+                            <p>如果你已经登录，部分信息会自动带入表单。</p>
+                        </div>
+                    </div>
+                    <form id="join-form">
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="join-userName">姓名</label>
+                                <input id="join-userName" name="userName" required>
+                            </div>
+                            <div class="field">
+                                <label for="join-grade">年级</label>
+                                <input id="join-grade" name="grade" placeholder="如 2024级" required>
+                            </div>
+                            <div class="field">
+                                <label for="join-major">专业</label>
+                                <input id="join-major" name="major" required>
+                            </div>
+                            <div class="field">
+                                <label for="join-direction">意向方向</label>
+                                <select id="join-direction" name="direction" required>
+                                    <option value="">请选择</option>
+                                    <option>人工智能</option>
+                                    <option>Web 全栈</option>
+                                    <option>软件工程</option>
+                                    <option>网络安全</option>
+                                </select>
+                            </div>
+                            <div class="field full">
+                                <label for="join-contact">联系方式</label>
+                                <input id="join-contact" name="contact" placeholder="邮箱或手机号" required>
+                            </div>
+                            <div class="field full">
+                                <label for="join-idea">想做的项目</label>
+                                <textarea id="join-idea" name="idea" placeholder="描述你想解决的校园问题、项目创意或希望参与的方向..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="submit-row">
+                            <button class="button button-primary" type="submit">提交报名</button>
+                            <span id="join-status" class="status-note">报名记录会实时写入本地数据看板。</span>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="auth-stack">
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <span class="section-label">FAQ</span>
+                                <h2>常见问题</h2>
+                                <p>把新成员常见顾虑提前回答掉，页面体验会更完整。</p>
+                            </div>
+                        </div>
+                        <div id="community-faq" class="card-grid" style="grid-template-columns:1fr;"></div>
+                    </div>
+                    <div>
+                        <div class="section-header">
+                            <div>
+                                <span class="section-label">Live Feed</span>
+                                <h2>最新报名动态</h2>
+                                <p>这里会自动显示最近提交的社区报名记录。</p>
+                            </div>
+                        </div>
+                        <div id="recent-submissions" class="card-grid" style="grid-template-columns:1fr;"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
